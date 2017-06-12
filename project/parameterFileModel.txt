@@ -1,0 +1,21 @@
+# Path to the parent parameter file.Parameters in the child file overwrite parameters with the same name in the parent file.
+parent = 
+
+# Path to the folder containing the input files.
+input.path = 
+
+# Path to the output folder.
+output.path = 
+
+# Dataset name.
+dataset.name = 
+
+# Weighting scheme.
+scheme = 
+
+# Percentage of instances removed.
+selection.level = 
+
+# Distance metric.
+distance.metric = 
+

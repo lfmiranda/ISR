@@ -1,0 +1,14 @@
+# Path for the training files.
+input.path = ~/input_path
+
+# Dataset name.
+dataset.name = dataset_name
+
+# Weighting scheme.
+scheme = scheme
+
+# Percentage of instances removed.
+selection.level = 0
+
+# Distance metric.
+distance.metric = dist_metric
