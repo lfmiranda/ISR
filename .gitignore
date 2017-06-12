@@ -1,0 +1,12 @@
+# IntelliJ/PyCharm project files
+.idea
+project.iml
+
+# Runnable files
+out
+
+# Misc
+.DS_Store
+project/parameters/concrete.txt
+datasets/1-05.06.2017/
+datasets/2-08.06.2017/
