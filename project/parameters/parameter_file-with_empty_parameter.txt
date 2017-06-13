@@ -12,3 +12,6 @@ selection.level = 0
 
 # Distance metric.
 distance.metric = dist_metric
+
+# Number of instances taken as neighbors.
+number.neighbors = 5

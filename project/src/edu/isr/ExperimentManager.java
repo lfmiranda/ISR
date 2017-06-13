@@ -37,6 +37,7 @@ class ExperimentManager {
         System.out.println("  Dataset name: " + parameters.getDatasetName());
         System.out.println("  Weighting scheme: " + parameters.getScheme());
         System.out.println("  Selection level: " + parameters.getSelectionLevel());
-        System.out.println("  Distance metric: " + parameters.getDistMetric() + "\n");
+        System.out.println("  Distance metric: " + parameters.getDistMetric());
+        System.out.println("  Number of neighbors: " + parameters.getNumNeighbors() + "\n");
     }
 }

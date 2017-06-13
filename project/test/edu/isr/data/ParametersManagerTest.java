@@ -63,4 +63,18 @@ public class ParametersManagerTest {
         parameters.parseCommandLine(args);
         parameters.setParameters();
     }
+
+    /**
+     * The method {@code setParameters} should throw a {@code NumberFormatException} if strings are passed for integer
+     * parameters.
+     * @throws Exception If required arguments or parameters were not provided correctly or if some error occurs while
+     * reading or creating files.
+     */
+    @Test(expected = NumberFormatException.class)
+    public void loadParameterFileWithInvalidValue() throws Exception {
+        String[] args = {"-p", "parameters/parameter_file-with_invalid_value.txt", "-h"};
+        parameters = new ParametersManager();
+        parameters.parseCommandLine(args);
+        parameters.setParameters();
+    }
 }

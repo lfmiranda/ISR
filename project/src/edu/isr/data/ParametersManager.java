@@ -33,6 +33,7 @@ public class ParametersManager {
     private String scheme;
     private String selectionLevel;
     private String distMetric;
+    private int numNeighbors;
 
     /**
      * Create a new {@code ParametersManager} and set the command line options.
@@ -75,7 +76,8 @@ public class ParametersManager {
         DATASET_NAME("dataset.name", "Dataset name."),
         SCHEME("scheme", "Weighting scheme."),
         SELECTION_LEVEL("selection.level", "Percentage of instances removed."),
-        DISTANCE_METRIC("distance.metric", "Distance metric.");
+        DISTANCE_METRIC("distance.metric", "Distance metric."),
+        NUM_NEIGHBORS("number.neighbors", "Number of instances taken as neighbors.");
 
         public final String name;
         public final String description;
@@ -88,7 +90,7 @@ public class ParametersManager {
 
     /**
      * Parse the command line arguments.
-     * @param  args Command line arguments.
+     * @param args Command line arguments.
      * @throws IOException If a required argument is not present or if some error occurs while creating the model file.
      * @throws ParseException If an error is reached while parsing the command line.
      */
@@ -109,8 +111,9 @@ public class ParametersManager {
      * Load and set all the parameters necessary for running the experiment.
      * @throws IOException If some error occurs while reading any of the parameter files.
      * @throws MissingOptionException If a required parameter was not found in any of the parameter files.
+     * @throws NumberFormatException If a parameter that is supposed to be integer is actually a string.
      */
-    public void setParameters() throws IOException, MissingOptionException {
+    public void setParameters() throws IOException, MissingOptionException, NumberFormatException {
         String parameterFilePath = parsedArgs.getOptionValue("p");
 
         loadedParameters = loadParameterFile(parameterFilePath);
@@ -168,6 +171,7 @@ public class ParametersManager {
     /**
      * Assign the loaded parameter to the corresponding variables.
      * @throws MissingOptionException If a required parameter is not found in any of the parameter files.
+     * @throws NumberFormatException If a parameter that is supposed to be integer is actually a string.
      */
     private void assignParameters() throws MissingOptionException {
         inPath = getStringParameter(ParameterList.INPUT_PATH, true);
@@ -176,10 +180,40 @@ public class ParametersManager {
         scheme = getStringParameter(ParameterList.SCHEME, false);
         selectionLevel = getStringParameter(ParameterList.SELECTION_LEVEL, false);
         distMetric = getStringParameter(ParameterList.DISTANCE_METRIC, false);
+        numNeighbors = getIntegerParameter(ParameterList.NUM_NEIGHBORS);
     }
 
     /**
-     * Return a specific parameter.
+     * Load an integer parameter from the parameter file.
+     * @param key The name of the parameter.
+     * @return The parameter loaded from the parameter file.
+     * @throws MissingOptionException If the parameter is mandatory and is not present in any of the parameter files.
+     * @throws NumberFormatException If the loaded value is actually a string.
+     */
+    private int getIntegerParameter(ParameterList key) throws MissingOptionException, NumberFormatException {
+        boolean keyPresent = loadedParameters.containsKey(key.name);
+
+        /*
+         * So far all integer parameters for which this method is called are mandatory, so an exception is thrown if any
+         * of them are not present.
+         */
+        if (!keyPresent) throw new MissingOptionException("The parameter \"" + key.name + "\" was not found.");
+
+        try {
+            // get the parameter value
+            int parameterValue = Integer.parseInt(loadedParameters.getProperty(key.name).replaceAll("\\s", ""));
+
+            // record the value in the log file
+            loadedParametersLog.append(key.name).append(" = ").append(parameterValue).append("\n");
+
+            return parameterValue;
+        } catch (NumberFormatException e) {
+            throw new NumberFormatException("The input parameter \"" + key.name + "\" could not be converted to int.");
+        }
+    }
+
+    /**
+     * Load a string parameter from the parameter file.
      * @param key The name of the parameter.
      * @param isFile Flag indicating if the string describes a file path.
      * @return The parameter loaded from the parameter file.
@@ -189,20 +223,24 @@ public class ParametersManager {
         boolean keyPresent = loadedParameters.containsKey(key.name);
 
         /*
-         * So far all parameters for which this method is called are mandatory, so an exception is thrown if any of them
-         * are not present.
+         * So far all string parameters for which this method is called are mandatory, so an exception is thrown if any
+         * of them are not present.
          */
         if (!keyPresent) throw new MissingOptionException("The parameter \"" + key.name + "\" was not found.");
 
-        String parameterValue = loadedParameters.getProperty(key.name);
+        // get the parameter value
+        String parameterValue = loadedParameters.getProperty(key.name).replaceAll("\\s", "");
 
+        // record the value in the log file
         if (parameterValue.isEmpty()) throw new MissingOptionException("Empty parameter: \"" + key.name + "\".");
 
-        String parameter = parameterValue.replaceAll("\\s", ""); // get the parameter value
-        if (isFile) parameter = parameter.replaceFirst("^~",System.getProperty("user.home"));
-        loadedParametersLog.append(key.name).append(" = ").append(parameter).append("\n");
+        parameterValue = parameterValue.replaceAll("\\s", "");
+        if (isFile) parameterValue = parameterValue.replaceFirst("^~",System.getProperty("user.home"));
 
-        return parameter;
+        // record the value in the log file
+        loadedParametersLog.append(key.name).append(" = ").append(parameterValue).append("\n");
+
+        return parameterValue;
     }
 
     /**
@@ -265,5 +303,13 @@ public class ParametersManager {
      */
     public String getDistMetric() {
         return distMetric;
+    }
+
+    /**
+     * Return the number of instances taken as neighbors when applying methods that depend on the notion of closeness.
+     * @return The number of neighbors.
+     */
+    public int getNumNeighbors() {
+        return numNeighbors;
     }
 }
