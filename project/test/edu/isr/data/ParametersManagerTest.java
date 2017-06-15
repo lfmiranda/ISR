@@ -6,7 +6,7 @@ import org.junit.Test;
 import java.io.FileNotFoundException;
 
 public class ParametersManagerTest {
-    private ParametersManager parameters;
+    private ParametersManager params;
 
     /**
      * Since the option "-p" is mandatory, the method {@code parseCommandLine} should throw a
@@ -18,8 +18,8 @@ public class ParametersManagerTest {
     public void parseCommandLineWithoutRequiredOption() throws Exception {
         String[] args = {"-h"};
 
-        parameters = new ParametersManager();
-        parameters.parseCommandLine(args);
+        params = new ParametersManager();
+        params.parseCommandLine(args);
     }
 
     /**
@@ -31,9 +31,9 @@ public class ParametersManagerTest {
     @Test(expected = FileNotFoundException.class)
     public void loadNonexistentParameterFile() throws Exception {
         String[] args = {"-p", "parameters/nonexistent_file.txt", "-h"};
-        parameters = new ParametersManager();
-        parameters.parseCommandLine(args);
-        parameters.setParameters();
+        params = new ParametersManager();
+        params.parseCommandLine(args);
+        params.setParameters();
     }
 
     /**
@@ -45,9 +45,9 @@ public class ParametersManagerTest {
     @Test(expected = MissingOptionException.class)
     public void loadParameterFileWithMissingParameter() throws Exception {
         String[] args = {"-p", "parameters/parameter_file-with_missing_parameter.txt", "-h"};
-        parameters = new ParametersManager();
-        parameters.parseCommandLine(args);
-        parameters.setParameters();
+        params = new ParametersManager();
+        params.parseCommandLine(args);
+        params.setParameters();
     }
 
     /**
@@ -59,9 +59,9 @@ public class ParametersManagerTest {
     @Test(expected = MissingOptionException.class)
     public void loadParameterFileWithEmptyParameter() throws Exception {
         String[] args = {"-p", "parameters/parameter_file-with_empty_parameter.txt", "-h"};
-        parameters = new ParametersManager();
-        parameters.parseCommandLine(args);
-        parameters.setParameters();
+        params = new ParametersManager();
+        params.parseCommandLine(args);
+        params.setParameters();
     }
 
     /**
@@ -73,8 +73,8 @@ public class ParametersManagerTest {
     @Test(expected = NumberFormatException.class)
     public void loadParameterFileWithInvalidValue() throws Exception {
         String[] args = {"-p", "parameters/parameter_file-with_invalid_value.txt", "-h"};
-        parameters = new ParametersManager();
-        parameters.parseCommandLine(args);
-        parameters.setParameters();
+        params = new ParametersManager();
+        params.parseCommandLine(args);
+        params.setParameters();
     }
 }

@@ -27,6 +27,7 @@ public class ParametersManager {
     private final StringBuilder loadedParametersLog;
 
     // parameters
+    private String origPath;
     private String inPath;
     private String outPath;
     private String datasetName;
@@ -69,9 +70,11 @@ public class ParametersManager {
      * Parameter list.
      */
     private enum ParameterList {
-        PARENT_FILE("parent", "Path to the parent parameter file." +
-                "Parameters in the child file overwrite parameters with the same name in the parent file."),
-        INPUT_PATH("input.path", "Path to the folder containing the input files."),
+        PARENT_FILE("parent", "Path to the parent parameter file. Parameters in the child file overwrite parameters " +
+                "with the same name in the parent file."),
+        ORIGINAL_FOLDS_PATH("original.folds.path", "Path to the folder containing the original folds."),
+        INPUT_PATH("input.path", "Path to the folder containing the input folds created during the embedding " +
+                "generation step."),
         OUTPUT_PATH("output.path", "Path to the output folder."),
         DATASET_NAME("dataset.name", "Dataset name."),
         SCHEME("scheme", "Weighting scheme."),
@@ -174,6 +177,7 @@ public class ParametersManager {
      * @throws NumberFormatException If a parameter that is supposed to be integer is actually a string.
      */
     private void assignParameters() throws MissingOptionException {
+        origPath = getStringParameter(ParameterList.ORIGINAL_FOLDS_PATH, true);
         inPath = getStringParameter(ParameterList.INPUT_PATH, true);
         outPath = getStringParameter(ParameterList.OUTPUT_PATH, true);
         datasetName = getStringParameter(ParameterList.DATASET_NAME, false);
@@ -252,9 +256,19 @@ public class ParametersManager {
     }
 
     /**
-     * Return the path to the files that should be used as input in the experiment. At first, these files will be
-     * training sets only, since the ISR algorithm is currently applied as an pre-processing step. Test sets will not be
-     * read.
+     * After the execution of the weighting step, each instance has a rank. The construction of this rank is based on
+     * the folds created after the embedding generation step. The selection, however, is made over the original folds,
+     * which the path is stored by the variable {@code origPath}.
+     * @return The path to the folder containing the original folds.
+     */
+    public String getOrigPath() {
+        return origPath;
+    }
+
+    /**
+     * Return the path to the folder containing the input folds (created during the embedding generation step) that
+     * should be used as input in the experiment. At first, these files will be training sets only, since the ISR
+     * algorithm is currently applied as an pre-processing step. Test sets will not be read.
      * @return The input path.
      */
     public String getInPath() {

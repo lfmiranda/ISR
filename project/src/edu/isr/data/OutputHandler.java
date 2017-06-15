@@ -12,11 +12,11 @@ import java.nio.file.Paths;
 public class OutputHandler {
     /**
      * Create a new {@code OutputHandler} and the folder where all output files will be saved.
-     * @param parameters All parameters.
+     * @param params Experiment parameters.
      * @throws IOException If some error occurs while creating the output folder.
      */
-    public OutputHandler(ParametersManager parameters) throws IOException {
-        Path path = Paths.get(parameters.getOutPath());
+    public OutputHandler(ParametersManager params) throws IOException {
+        Path path = Paths.get(params.getOutPath());
 
         // if the output folder does not exists, create it
         if (!Files.exists(path)) try {
@@ -28,14 +28,14 @@ public class OutputHandler {
 
     /**
      * Create a file registering all parameters loaded.
-     * @param parameters All parameters.
+     * @param params Experiment parameters.
      * @throws IOException If some error occurs while creating the log file.
      */
-    public void writeLoadedParametersLog(ParametersManager parameters) throws IOException {
-        String path = parameters.getOutPath() + "loaded_parameters-" + parameters.getDatasetName() + ".txt";
+    public void writeLoadedParametersLog(ParametersManager params) throws IOException {
+        String path = params.getOutPath() + "loaded_parameters-" + params.getDatasetName() + ".txt";
 
         try (PrintWriter out = new PrintWriter(path, "UTF-8")) {
-            out.print(parameters.getLoadedParametersLog());
+            out.print(params.getLoadedParametersLog());
         } catch (IOException e) {
             throw new IOException("Error while writing the parameter log.");
         }

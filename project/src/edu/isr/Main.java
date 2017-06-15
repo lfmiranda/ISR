@@ -2,7 +2,7 @@ package edu.isr;
 
 class Main {
     /**
-     * Start the experiment and keep track of its execution time.
+     * Triggers the experiment and keep track of its execution time.
      * @param args Command line arguments
      */
     public static void main(String[] args) {
@@ -10,7 +10,8 @@ class Main {
 
         try {
             // parse the command line and set all the parameters necessary for running the experiment
-            new ExperimentManager(args);
+            ExperimentManager experiment = new ExperimentManager(args);
+            experiment.runExperiment();
         } catch (Exception e) {
             System.out.println(e.getMessage());
             System.exit(1);
