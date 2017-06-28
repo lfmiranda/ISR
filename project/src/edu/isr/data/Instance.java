@@ -11,7 +11,7 @@ class Instance {
 
     private final double[] allAttrs;
     private final double[] input;
-    private final double output;
+    private double output;
 
     private final List<Instance> neighbors;
 
@@ -62,6 +62,21 @@ class Instance {
      */
     public double getOutput() {
         return output;
+    }
+
+    /**
+     * Change the value of a specific attribute.
+     * @param attrId Index of the attribute that will be changed.
+     * @param numAttrs Number of attributes of the instance.
+     * @param value The new value for the attribute.
+     */
+    void setAttrValue(int attrId, int numAttrs, double value) {
+        assert attrId >= 0 && attrId <= (numAttrs - 1) : "invalid attribute id.";
+
+        allAttrs[attrId] = value;
+
+        if (attrId == (numAttrs - 1)) output = value;
+        else input[attrId] = value;
     }
 
     /**

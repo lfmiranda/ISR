@@ -39,6 +39,7 @@ class ExperimentManager {
         ArrayList<Fold> embeddingFolds = InputHandler.readFolds(params, false);
 
         for (Fold currFold : embeddingFolds) {
+            currFold.normalizeData();
             currFold.assignRanks(params);
         }
     }

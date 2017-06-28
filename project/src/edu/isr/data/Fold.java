@@ -3,10 +3,7 @@ package edu.isr.data;
 import com.google.common.collect.TreeMultimap;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Represents a set of instances. Each dataset may be represent by one or more folds.
@@ -27,6 +24,33 @@ public class Fold {
     Fold(String foldName) {
         instances = new ArrayList<>();
         this.foldName = foldName;
+    }
+
+    /**
+     * Normalize all the attributes to similar ranges in order to ensure that no unadapted data ranges bias the weights.
+     */
+    public void normalizeData() {
+        for (int i = 0; i < numAttr; i++) { // for each attribute (input and output)
+            double[] allValuesSingleAttr = new double[numInst];
+            double min = Double.POSITIVE_INFINITY;
+            double max = Double.NEGATIVE_INFINITY;
+
+            // find the minimum and maximum value for the current attribute
+            for (int j = 0; j < numInst; j++) {
+                double value = instances.get(j).getAllAttrs()[i];
+
+                allValuesSingleAttr[j] = value;
+                if (value < min) min = value;
+                if (value > max) max = value;
+            }
+
+            double range = Math.abs(max - min);
+
+            // normalize the attribute values
+            for (int j = 0; j < numInst; j++) {
+                instances.get(j).setAttrValue(i, numAttr, (allValuesSingleAttr[j] - min) / range);
+            }
+        }
     }
 
     /**
