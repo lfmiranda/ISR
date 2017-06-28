@@ -37,28 +37,36 @@ public class InputHandler {
                 Fold fold = new Fold(foldName);
 
                 int numAttr = 0;
-                int numInst = 0;
+                int id = 0;
 
                 while (sc.hasNextLine()) { // each line corresponds to an instance
                     // split the line into a group of strings, each representing an attribute
                     String[] attrs = sc.nextLine().split(",");
                     
-                    if (numInst == 0) numAttr = attrs.length; // find out the number of attributes
+                    if (id == 0) numAttr = attrs.length; // find out the number of attributes
 
                     // copy the input attributes
+                    double[] allAttrs = new double[numAttr];
                     double[] inputAttrs = new double[numAttr - 1];
                     for (int i = 0; i < numAttr - 1; i++) {
+                        allAttrs[i] = Double.parseDouble(attrs[i]);
                         inputAttrs[i] = Double.parseDouble(attrs[i]);
                     }
 
-                    double outputAttr = Double.parseDouble(attrs[numAttr - 1]); // copy the output attribute
+                    // copy the output attribute
+                    allAttrs[numAttr - 1] = Double.parseDouble(attrs[numAttr - 1]);
+                    double outputAttr = Double.parseDouble(attrs[numAttr - 1]);
 
-                    fold.addInst(new Instance(inputAttrs, outputAttr));
-                    numInst++;
+                    fold.addInst(new Instance(id, allAttrs, inputAttrs, outputAttr));
+                    id++;
                 }
 
                 fold.setNumAttr(numAttr);
-                fold.setNumInst(numInst);
+
+                /* The instance id is zero-based, but since the id variable was incremented after the addition of the
+                 * last instance, its value contains the correct number of instances in the fold.
+                 */
+                fold.setNumInst(id);
 
                 folds.add(fold);
             } catch (FileNotFoundException e) {

@@ -5,7 +5,7 @@ import edu.isr.data.InputHandler;
 import edu.isr.data.OutputHandler;
 import edu.isr.data.ParametersManager;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -27,16 +27,20 @@ class ExperimentManager {
 
         printLoadedParameters();
 
-        OutputHandler outputHandler = new OutputHandler(params);
-        outputHandler.writeLoadedParametersLog(params);
+        new OutputHandler(params);
+        OutputHandler.writeLoadedParametersLog(params);
     }
 
     /**
      * Run the experiment.
+     * @throws IOException If some error occurs while creating the output files.
      */
-    void runExperiment() throws FileNotFoundException {
-        ArrayList<Fold> originalFolds = InputHandler.readFolds(params, true);
+    void runExperiment() throws IOException {
         ArrayList<Fold> embeddingFolds = InputHandler.readFolds(params, false);
+
+        for (Fold currFold : embeddingFolds) {
+            currFold.assignRanks(params);
+        }
     }
 
     /**
