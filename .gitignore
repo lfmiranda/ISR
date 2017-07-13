@@ -5,8 +5,15 @@ project.iml
 # Runnable files
 out
 
+# Experiment files
+experiments/
+
 # Misc
 .DS_Store
 project/parameters/concrete.txt
+project/parameters/keijzer-1.txt
+project/parameters/keijzer-8.txt
+project/parameters/ksinc.txt
+project/META-INF/
 datasets/1-05.06.2017/
 datasets/2-08.06.2017/
