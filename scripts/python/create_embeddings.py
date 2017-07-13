@@ -3,15 +3,17 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-from sklearn import decomposition
-from sklearn import manifold
+from sklearn import decomposition, manifold
 
 base_dir = os.path.expanduser("~/Dropbox/my_files/research/ISR/")
 data_folder = base_dir + "datasets/original/"
 outputs_folder = base_dir + "datasets/1-05.06.2017/"
 plots_folder = base_dir + "plots/1-05.06.2017/"
 
-datasets = ["concrete"]
+# The original "ppb" dataset cannot be used, as it contains attributes for which all values are equals to zero (which
+# causes a "division by zero" error during the normalization step).
+datasets = ["airfoil", "concrete", "ccn", "ccun", "energyCooling", "energyHeating", "parkinsons", "ppb-wth0s",
+            "towerData", "wineRed", "wineWhite", "yacht"]
 num_neighbors = 5
 
 
