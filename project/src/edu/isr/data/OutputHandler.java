@@ -30,7 +30,9 @@ public class OutputHandler {
 
         try {
             // if any of the output folders do not exist, create it
-            if (!Files.exists(experimentPath)) Files.createDirectories(experimentPath);
+            if (!Files.exists(experimentPath) && (!params.getSelectionLevel().equals("no_selection"))) {
+                Files.createDirectories(experimentPath);
+            }
             if (!Files.exists(weightsPath)) Files.createDirectories(weightsPath);
         } catch (IOException e) {
             throw new IOException("Error while creating the output folder.");
@@ -61,14 +63,14 @@ public class OutputHandler {
      * @throws IOException If some error occurs while creating the file.
      */
     static void writeWeights(String foldName, List<Instance> instances, ParametersManager params) throws IOException {
-        String scheme = params.getScheme();
-        String distMetric = params.getDistMetric();
-        String fileName = params.getOutPath() + "weights/" + String.join("-", scheme, distMetric, foldName);
+        String fileName = params.getOutPath() + "weights/" +
+                String.join("-", params.getScheme(), params.getDistMetric(), foldName);
 
         try (PrintWriter out = new PrintWriter(fileName, "UTF-8")) {
             for (Instance inst : instances) {
                 out.println(inst.getWeight());
             }
+            out.println();
         } catch (IOException e) {
             throw new IOException("Error while writing the weights.");
         }

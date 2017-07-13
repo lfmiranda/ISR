@@ -28,7 +28,7 @@ class ExperimentManager {
         printLoadedParameters();
 
         new OutputHandler(params);
-        OutputHandler.writeLoadedParametersLog(params);
+        if (!params.getSelectionLevel().equals("no_selection")) OutputHandler.writeLoadedParametersLog(params);
     }
 
     /**

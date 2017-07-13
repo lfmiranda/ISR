@@ -18,6 +18,6 @@ class Main {
         }
 
         long endTime = System.currentTimeMillis();
-        System.out.println("Elapsed time: " + ((endTime - startTime) / 1000) + " seconds.");
+        System.out.println("Elapsed time: " + ((endTime - startTime) / 1000) + " seconds.\n");
     }
 }
