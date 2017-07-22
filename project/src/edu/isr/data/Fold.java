@@ -66,13 +66,10 @@ public class Fold {
     }
 
     /**
-     * Measure the distance between each pair of instances.
+     * Measure the distance between each pair of instances, always based on the input space.
      * @param distMetric Metric used in order to calculate distances between instances.
      */
-    private void measureDistBetweenInst(String distMetric) {
-        assert distMetric.equals("euclidean") || distMetric.equals("fractional") : "invalid distance metric.";
-
-        // the distances between the instances will always be based on the input space
+    private void measureDistBetweenInst(double distMetric) {
         distBetweenInst = new double[numInst][numInst];
 
         for (int i = 1; i < numInst; i++) {
@@ -81,15 +78,7 @@ public class Fold {
                 double[] v = instances.get(j).getInput();
                 int d = numAttr - 1;
 
-                switch (distMetric) {
-                    case "euclidean":
-                        distBetweenInst[i][j] = Utils.measureEuclideanDistance(u, v, d);
-                        break;
-                    case "fractional":
-                        distBetweenInst[i][j] = Utils.measureFractionalDistance(u, v, d);
-                        break;
-                }
-
+                distBetweenInst[i][j] = Utils.measureDistance(u, v, d, distMetric);
                 distBetweenInst[j][i] = distBetweenInst[i][j];
             }
         }
@@ -100,6 +89,9 @@ public class Fold {
      * @param params Experiment parameters.
      */
     private void weighInstances(ParametersManager params) {
+        double lowestWeight = Double.POSITIVE_INFINITY;
+        double highestWeight = 0;
+
         for (Instance inst : instances) {
             /* Distances (considering only the input space) between the instance for which we want to weigh and all
             other instances */
@@ -114,7 +106,16 @@ public class Fold {
                 sortedDistances.put(distOtherInst[i], i);
             }
 
-            weighInstance(inst, params, sortedDistances); // weigh the current instance
+            double weight = weighInstance(inst, params, sortedDistances); // weigh the current instance
+            inst.setWeight(weight);
+
+            if (weight < lowestWeight) lowestWeight = weight;
+            if (weight > highestWeight) highestWeight = weight;
+        }
+
+        // normalize the weights
+        for (Instance inst : instances) {
+            inst.setWeight((inst.getWeight() - lowestWeight) / (highestWeight - lowestWeight));
         }
     }
 
@@ -126,14 +127,11 @@ public class Fold {
      *                        corresponding to each one of them. The entries are sorted by their distance value (and
      *                        duplicates are allowed).
      */
-    private void weighInstance(Instance inst, ParametersManager params, TreeMultimap<Double, Integer> sortedDistances) {
-        String scheme = params.getScheme();
-        assert scheme.equals("proximity-x") || scheme.equals("proximity-xy") : "invalid weighting scheme.";
-
+    private double weighInstance(Instance inst, ParametersManager params, TreeMultimap<Double, Integer> sortedDistances) {
         // find the instance neighbors (using distances based only on the input space)
         findNeighbors(inst.getId(), params.getNumNeighbors(), sortedDistances);
 
-        inst.setWeight(Schemes.proximity(inst, params)); // find and set the weight for the instance.
+        return Schemes.findWeight(inst, params); // find and return the weight for the instance.
     }
 
     /**

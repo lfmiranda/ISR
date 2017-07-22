@@ -33,7 +33,7 @@ public class ParametersManager {
     private String datasetName;
     private String scheme;
     private String selectionLevel;
-    private String distMetric;
+    private double distMetric;
     private int numNeighbors;
 
     /**
@@ -183,7 +183,7 @@ public class ParametersManager {
         datasetName = getStringParameter(ParameterList.DATASET_NAME, false);
         scheme = getStringParameter(ParameterList.SCHEME, false);
         selectionLevel = getStringParameter(ParameterList.SELECTION_LEVEL, false);
-        distMetric = getStringParameter(ParameterList.DISTANCE_METRIC, false);
+        distMetric = getDoubleParameter(ParameterList.DISTANCE_METRIC);
         numNeighbors = getIntegerParameter(ParameterList.NUM_NEIGHBORS);
     }
 
@@ -197,10 +197,7 @@ public class ParametersManager {
     private int getIntegerParameter(ParameterList key) throws MissingOptionException, NumberFormatException {
         boolean keyPresent = loadedParameters.containsKey(key.name);
 
-        /*
-         * So far all integer parameters for which this method is called are mandatory, so an exception is thrown if any
-         * of them are not present.
-         */
+        // so far all integer parameters are mandatory, so an exception is thrown if any of them are not present
         if (!keyPresent) throw new MissingOptionException("The parameter \"" + key.name + "\" was not found.");
 
         try {
@@ -212,7 +209,33 @@ public class ParametersManager {
 
             return parameterValue;
         } catch (NumberFormatException e) {
-            throw new NumberFormatException("The input parameter \"" + key.name + "\" could not be converted to int.");
+            throw new NumberFormatException("The parameter \"" + key.name + "\" could not be converted to int.");
+        }
+    }
+
+    /**
+     * Load an double parameter from the parameter file.
+     * @param key The name of the parameter.
+     * @return The parameter loaded from the parameter file.
+     * @throws MissingOptionException If the parameter is mandatory and is not present in any of the parameter files.
+     * @throws NumberFormatException If the loaded value is actually a string.
+     */
+    private double getDoubleParameter(ParameterList key) throws MissingOptionException {
+        boolean keyPresent = loadedParameters.containsKey(key.name);
+
+        // so far all double parameters are mandatory, so an exception is thrown if any of them are not present
+        if (!keyPresent) throw new MissingOptionException("The parameter \"" + key.name + "\" was not found.");
+
+        try {
+            // get the parameter value
+            double parameterValue = Double.parseDouble(loadedParameters.getProperty(key.name).replaceAll("\\s", ""));
+
+            // record the value in the log file
+            loadedParametersLog.append(key.name).append(" = ").append(parameterValue).append("\n");
+
+            return parameterValue;
+        } catch (NumberFormatException e) {
+            throw new NumberFormatException("The parameter \"" + key.name + "\" could not be converted to double.");
         }
     }
 
@@ -315,7 +338,7 @@ public class ParametersManager {
      * and fractional.
      * @return The distance metric.
      */
-    public String getDistMetric() {
+    public double getDistMetric() {
         return distMetric;
     }
 

@@ -23,7 +23,7 @@ public class OutputHandler {
     public OutputHandler(ParametersManager params) throws IOException {
         scheme = params.getScheme();
         selectionLevel = "s" + params.getSelectionLevel();
-        distMetric = params.getDistMetric();
+        distMetric = Double.toString(params.getDistMetric());
 
         Path experimentPath = Paths.get(params.getOutPath() + String.join("/", selectionLevel, scheme, distMetric, ""));
         Path weightsPath = Paths.get(params.getOutPath() + "weights/");
@@ -64,7 +64,7 @@ public class OutputHandler {
      */
     static void writeWeights(String foldName, List<Instance> instances, ParametersManager params) throws IOException {
         String fileName = params.getOutPath() + "weights/" +
-                String.join("-", params.getScheme(), params.getDistMetric(), foldName);
+                String.join("-", params.getScheme(), "L" + Double.toString(params.getDistMetric()), foldName);
 
         try (PrintWriter out = new PrintWriter(fileName, "UTF-8")) {
             for (Instance inst : instances) {

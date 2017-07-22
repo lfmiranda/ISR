@@ -11,7 +11,7 @@ scheme = scheme
 selection.level = 0
 
 # Distance metric.
-distance.metric = dist_metric
+distance.metric = 1
 
 # Number of instances taken as neighbors.
 number.neighbors = 0

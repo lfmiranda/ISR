@@ -5,42 +5,23 @@ package edu.isr.data;
  */
 class Utils {
     /**
-     * Measures the Euclidean distance between two arrays.
-     * @param u The first array.
-     * @param v The second array.
-     * @param d The number of dimensions. Used in order to avoid the introduction of bugs when changing from input to
-     *          input-output space and vice-versa.
-     * @return The Euclidean distance.
+     *
+     * @param p The first point.
+     * @param q The second point.
+     * @param numDim The number of dimensions. Used in order to avoid the introduction of bugs when changing from input
+     *               to input-output space and vice-versa.
+     * @param z Parameter of the parameterized Minkowski metric. For example, z = 1 means Manhattan distance and z = 2
+     *          means Euclidean distance. If z < 1, then we have the so called fractional distance.
+     * @return The distance between p and q.
      */
-    static double measureEuclideanDistance(double[] u, double[] v, int d) {
-        assert u.length == d && v.length == d: "number of dimensions does not match the arrays length.";
+    static double measureDistance(double[] p, double[] q, int numDim, double z) {
+        assert p.length == numDim && q.length == numDim: "number of dimensions does not match the arrays length.";
 
         double sum = 0;
 
-        for (int i = 0; i < d; i++) { // for each input attribute
-            sum += Math.pow(Math.abs(u[i] - v[i]), 2);
-        }
+        for (int i = 0; i < numDim; i++) // for each input attribute
+            sum += Math.pow(Math.abs(p[i] - q[i]), z);
 
-        return Math.sqrt(sum);
-    }
-
-    /**
-     * Measures the fractional distance between two arrays.
-     * @param u The first array.
-     * @param v The second array.
-     * @param d The number of dimensions. Used in order to avoid the introduction of bugs when changing from input to
-     *          input-output space and vice-versa.
-     * @return The fractional distance.
-     */
-    static double measureFractionalDistance(double[] u, double[] v, int d) {
-        assert u.length == d && v.length == d: "number of dimensions does not match the arrays length.";
-
-        double sum = 0;
-
-        for (int i = 0; i < d; i++) {
-            sum += Math.pow(Math.abs(u[i] - v[i]), d);
-        }
-
-        return Math.pow(sum, 1 / d);
+        return Math.pow(sum, 1 / z);
     }
 }
