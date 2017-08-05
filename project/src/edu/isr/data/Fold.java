@@ -61,7 +61,32 @@ public class Fold {
      */
     public void assignRanks(ParametersManager params) throws IOException {
         measureDistBetweenInst(params.getDistMetric()); // measure the distance between each pair of instances
-        weighInstances(params); // weigh the entire fold
+
+        double[] weights = new double[numInst];
+
+        String scheme = params.getScheme();
+        if (! (scheme.equals("remoteness-x") || (scheme.equals("remoteness-xy")))) {
+            weights = weighInstances(params, scheme);
+        } else { // remoteness-x or remoteness-xy
+            double[] proximityWeights;
+            double[] surroundingWeights;
+
+            if (scheme.equals("remoteness-x")) {
+                proximityWeights = weighInstances(params, "proximity-x");
+                surroundingWeights = weighInstances(params, "surrounding-x");
+            } else { //remoteness-xy
+                proximityWeights = weighInstances(params, "proximity-xy");
+                surroundingWeights = weighInstances(params, "surrounding-xy");
+            }
+
+            // determine the remoteness weight
+            for (int i = 0; i < numInst; i++)
+                weights[i] = (proximityWeights[i] + surroundingWeights[i]) / 2;
+        }
+
+        for (int i = 0; i < numInst; i++)
+            instances.get(i).setWeight(weights[i]);
+
         OutputHandler.writeWeights(foldName, instances, params); // write the weights in a file
     }
 
@@ -85,12 +110,18 @@ public class Fold {
     }
 
     /**
-     * Weigh the entire fold.
+     * Get the weights of the entire fold.
      * @param params Experiment parameters.
+     * @param scheme Weighting scheme. If the parameter "scheme" in the parameter file is "remoteness-x" or
+     *               "remoteness-xy", this method will be alternately called with the corresponding proximity and
+     *               surrounding schemes.
+     * @return An array with all the weights.
      */
-    private void weighInstances(ParametersManager params) {
+    private double[] weighInstances(ParametersManager params, String scheme) {
         double lowestWeight = Double.POSITIVE_INFINITY;
         double highestWeight = 0;
+
+        double[] weights = new double[numInst];
 
         for (Instance inst : instances) {
             /* Distances (considering only the input space) between the instance for which we want to weigh and all
@@ -102,11 +133,10 @@ public class Fold {
             TreeMultimap<Double, Integer> sortedDistances = TreeMultimap.create();
 
             // fill the map
-            for (int i = 0; i < numInst; i++) {
+            for (int i = 0; i < numInst; i++)
                 sortedDistances.put(distOtherInst[i], i);
-            }
 
-            double weight = weighInstance(inst, params, sortedDistances); // weigh the current instance
+            double weight = weighInstance(inst, params, scheme, sortedDistances); // weigh the current instance
             inst.setWeight(weight);
 
             if (weight < lowestWeight) lowestWeight = weight;
@@ -114,24 +144,30 @@ public class Fold {
         }
 
         // normalize the weights
-        for (Instance inst : instances) {
-            inst.setWeight((inst.getWeight() - lowestWeight) / (highestWeight - lowestWeight));
-        }
+        for (Instance inst : instances)
+            weights[inst.getId()] = (inst.getWeight() - lowestWeight) / (highestWeight - lowestWeight);
+
+        return weights;
     }
 
     /**
      * Weigh an specific instance.
      * @param inst The instance to be weighted.
      * @param params Experiment parameters.
+     * @param scheme Weighting scheme. If the parameter "scheme" in the parameter file is "remoteness-x" or
+     *               "remoteness-xy", this method will be alternately called with the corresponding proximity and
+     *               surrounding schemes.
      * @param sortedDistances Map containing, for the current instance, the distance to the other instances and the id
      *                        corresponding to each one of them. The entries are sorted by their distance value (and
      *                        duplicates are allowed).
+     * @return The weight.
      */
-    private double weighInstance(Instance inst, ParametersManager params, TreeMultimap<Double, Integer> sortedDistances) {
+    private double weighInstance(Instance inst, ParametersManager params, String scheme,
+                                 TreeMultimap<Double, Integer> sortedDistances) {
         // find the instance neighbors (using distances based only on the input space)
         findNeighbors(inst.getId(), params.getNumNeighbors(), sortedDistances);
 
-        return Schemes.findWeight(inst, params); // find and return the weight for the instance.
+        return Schemes.findWeight(inst, params, scheme); // find and return the weight for the instance.
     }
 
     /**
