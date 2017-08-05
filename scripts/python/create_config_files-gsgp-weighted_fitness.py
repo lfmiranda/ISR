@@ -7,9 +7,10 @@ embeddings = {"original": "orig", "isomap": "imap", "mds": "mds", "pca": "pca", 
 schemes = {"proximity-x": "pro_x", "proximity-xy": "pro_xy",
            "surrounding-x": "sur_x", "surrounding-xy": "sur_xy",
            "remoteness-x": "rem_y", "remoteness-xy": "rem_xy"}
-dist_metrics = {"euclidean": "euc", "fractional": "fra"}
+dist_metrics = ["L0.1", "L0.5", "L1.0", "L2.0"]
 datasets = ["airfoil", "ccn", "ccun", "concrete", "energyCooling", "energyHeating", "keijzer-6", "keijzer-7",
             "parkinsons", "ppb", "towerData", "vladislavleva-1", "wineRed", "wineWhite", "yacht"]
+synthetic_datasets = ["keijzer-6", "keijzer-7", "vladislavleva-1"]
 exper_number = 1
 exper_date = "05.07.2017"
 output_number = 1
@@ -33,19 +34,12 @@ chmod(exper_local_path + "outputs/", 0o777)
 # change the permission for the jar file
 chmod(exper_local_path + jar_name, 0o777)
 
-# set-up the e-mail notification
-email_notif_enabled = input("Notify end of execution by e-mail? (y/n) ")
-if email_notif_enabled == "y":
-    email_address = input("E-mail address: ")
-else:
-    email_address = None
-
 # generation of the batch script and the configuration files
 for embedding, embedding_alias in embeddings.items():
     for scheme, scheme_alias in schemes.items():
-        for dist_metric, dist_metric_alias in dist_metrics.items():
+        for dist_metric in dist_metrics:
             # full identifier for the experiment
-            exper_id = "-".join([str(exper_number), exper_date, embedding_alias, scheme_alias, dist_metric_alias])
+            exper_id = "-".join([str(exper_number), exper_date, embedding_alias, scheme_alias, dist_metric])
 
             # full identifier for the output folder
             output_folder = "-".join([str(output_number), system_id, exper_id]) + "/"
@@ -97,6 +91,11 @@ for embedding, embedding_alias in embeddings.items():
             parent_file.write("breed.spread.alpha = 2.0\n")
 
             for dataset in datasets:
+                # The embedding methods were not applied to synthetic datasets, thus no configuration file should be
+                # created for this type of dataset.
+                if (dataset in synthetic_datasets) and (not embedding == "original"):
+                    continue
+
                 # create the child configuration file
                 curr_child_file = open(config_files_local_path + dataset + ".txt", "w")
 
@@ -108,11 +107,11 @@ for embedding, embedding_alias in embeddings.items():
                                       scheme + "-" + dist_metric + "-" + dataset)
 
                 # The "ppb" dataset had to be modified in order to apply the embedding methods on it. That means that
-                # there are two versions of the dataset (the other one is called "ppb-wth0s). In the experiments, the
+                # there are two versions of the dataset (the other one is called "ppb-wth0s"). In the experiments, the
                 # weights are based on the modified version, but it is the original version that is passed to the GSGP.
                 # This part takes care of it. Though this fix was excessively adhoc, it minimizes the risk of errors in
                 # future experiments.
-                if not dataset == "ppb":
+                if (dataset != "ppb") or (embedding == "original"):
                     curr_child_file.write("-train-#.csv\n")
                 else:
                     curr_child_file.write("-wth0s-train-#.csv\n")
@@ -120,13 +119,9 @@ for embedding, embedding_alias in embeddings.items():
                 curr_child_file.write("experiment.file.prefix = output-files/output-" + dataset + "\n")
 
                 # append the execution command to the batch file
-                batch_file.write("java -Xms512m -Xmx8g -jar " + "../GSGP-WeightedFitness.jar -p " + exper_server_path +
-                                 exper_id + "/" + dataset + ".txt > " + output_server_path + output_folder + dataset +
-                                 ".txt\n")
-
-            # add the e-mail notification at the end of the batch file
-            if email_notif_enabled == "y":
-                batch_file.write("\necho \"\" | mail -s " + exper_id + " " + email_address)
+                batch_file.write("java -Xms512m -Xmx8g -jar " + exper_server_path + "GSGP-WeightedFitness.jar -p " +
+                                 exper_server_path + exper_id + "/" + dataset + ".txt > " + output_server_path +
+                                 output_folder + dataset + ".txt\n")
 
             # server folder in which the output files will be written
             output_local_path = exper_local_path + "outputs/" + output_folder
