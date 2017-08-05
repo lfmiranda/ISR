@@ -4,15 +4,15 @@ import matplotlib.pyplot as plt
 import os
 
 # experiments variables
-datasets = ["keijzer-1-train-0", "keijzer-6-train-0", "keijzer-7-train-0", "keijzer-8-train-0", "ksinc-0"]
-schemes = ["proximity-x", "proximity-xy"]
-dist_metrics = ["euclidean"]
+datasets = ["ksinc-0"]
+schemes = ["proximity-x", "proximity-xy", "surrounding-x", "surrounding-xy", "remoteness-x", "remoteness-xy"]
+dist_metrics = ["L0.1", "L0.5", "L1.0", "L2.0"]
 
 # local paths
 base_dir = os.path.expanduser("~/Dropbox/my_files/research/ISR/")
 data_folder = base_dir + "datasets/original/"
 weights_folder = base_dir + "datasets/2-08.06.2017/original/weights/"
-plots_folder = base_dir + "plots/2-28.06.2017/original/"
+plots_folder = base_dir + "plots/3-22.07.2017/original/"
 
 if not os.path.exists(plots_folder):
     os.makedirs(plots_folder)
@@ -43,7 +43,7 @@ for dataset in datasets:
             min_weight = min(W) * 0.95
             max_weight = max(W) * 0.95
 
-            areas = [(w - min_weight) / (max_weight - min_weight) * 400 for w in W]
+            areas = [(w - min_weight + 0.05) / (max_weight - min_weight) * 400 for w in W]
 
             plt.figure(figsize=(16, 8))
 
@@ -62,8 +62,8 @@ for dataset in datasets:
                     textcoords="offset points", ha="center", va="center", fontsize=6,
                     arrowprops=dict(arrowstyle='-', color="#1F77B4", connectionstyle='arc3,rad=0'))
 
-            plt.title("Weights - " + scheme + "-" + dataset)
+            plt.title("Weights - " + scheme + ", " + dist_metric + ", " + dataset)
             plt.xlabel("Input", fontsize=12)
             plt.ylabel("Output", fontsize=12)
-            plt.savefig(plots_folder + scheme + "-" + dataset + ".pdf", bbox_inches="tight")
+            plt.savefig(plots_folder + dataset + "-" + scheme + "-" + dist_metric + ".pdf", bbox_inches="tight")
             plt.close()
