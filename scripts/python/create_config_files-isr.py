@@ -1,16 +1,19 @@
 from os import chmod, makedirs, path
-from subprocess import call
 
 # experiments variables
 systems = ["ISR"]
 embeddings = ["original", "isomap", "mds", "pca", "tsne"]
 selection_level = "no_selection"
 schemes = ["proximity-x", "proximity-xy", "surrounding-x", "surrounding-xy", "remoteness-x", "remoteness-xy"]
-dist_metrics = ["euclidean", "fractional"]
+dist_metrics = ["0.1", "0.5", "1.0", "2.0"]
 number_neighbors = "5"
 dataset_type = "train"
+# The "ppb" dataset had to be modified in order to apply the embedding methods on it. That means that there are two
+# versions of the dataset ("ppb" and "ppb-wth0s"). Because the ISR performs a normalization step, the modified version
+# must be used.
 datasets = ["airfoil", "ccn", "ccun", "concrete", "energyCooling", "energyHeating", "keijzer-6", "keijzer-7",
             "parkinsons", "ppb-wth0s", "towerData", "vladislavleva-1", "wineRed", "wineWhite", "yacht"]
+synthetic_datasets = ["keijzer-6", "keijzer-7", "vladislavleva-1"]
 experiment_id = 1
 
 # paths related to the experiments
@@ -44,8 +47,13 @@ for system in systems:
         for scheme in schemes:
             for dist_metric in dist_metrics:
                 for dataset in datasets:
-                    experiment_name = "-".join([str(experiment_id), embedding, scheme, dist_metric, dataset]) + ".txt"
-                    parameter_file = open(config_files_folder + experiment_name, "w")
+                    # The embedding methods were not applied to synthetic datasets, thus no configuration file should be
+                    # created for this type of dataset.
+                    if (dataset in synthetic_datasets) and (embedding != "original"):
+                        continue
+
+                    experiment_name = "-".join([str(experiment_id), embedding, scheme, "L" + dist_metric, dataset])
+                    parameter_file = open(config_files_folder + experiment_name + ".txt", "w")
 
                     parameter_file.write("original.folds.path = " + original_datasets_path + "\n")
                     parameter_file.write("input.path = " + input_path + "\n")
@@ -58,12 +66,8 @@ for system in systems:
 
                     batch_file.write("echo \"Current file: " + experiment_name + "\"\n")
                     batch_file.write("java -jar " + experiments_path + "ISR.jar -p " + experiments_path +
-                                     "config_files/" + experiment_name + "\n")
+                                     "config_files/" + experiment_name + ".txt\n")
 
                     experiment_id += 1
-
-print("Running Bash script...\n")
-
-call(batch_file_path)
 
 print("\nDone.")
