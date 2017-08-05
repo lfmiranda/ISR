@@ -9,7 +9,7 @@ schemes = {"proximity-x": "pro_x", "proximity-xy": "pro_xy",
            "remoteness-x": "rem_y", "remoteness-xy": "rem_xy"}
 dist_metrics = ["L0.1", "L0.5", "L1.0", "L2.0"]
 datasets = ["airfoil", "ccn", "ccun", "concrete", "energyCooling", "energyHeating", "keijzer-6", "keijzer-7",
-            "parkinsons", "ppb", "towerData", "vladislavleva-1", "wineRed", "wineWhite", "yacht"]
+            "parkinsons", "ppb-wth0s", "towerData", "vladislavleva-1", "wineRed", "wineWhite", "yacht"]
 synthetic_datasets = ["keijzer-6", "keijzer-7", "vladislavleva-1"]
 exper_number = 1
 exper_date = "05.07.2017"
@@ -21,7 +21,7 @@ exper_local_path = root + "experiments/" + system_id + "/"
 
 # server paths
 server_root = "~/research/isr/"
-original_datasets_server_path = server_root + "datasets/original/"
+original_datasets_server_path = server_root + "datasets/normalized/"
 weight_files_server_path = server_root + "datasets/2-08.06.2017/"
 exper_server_path = server_root + "experiments/" + system_id + "/"
 output_server_path = server_root + "outputs/"
@@ -104,18 +104,7 @@ for embedding, embedding_alias in embeddings.items():
                 curr_child_file.write("experiment.data.test = " + original_datasets_server_path + dataset +
                                       "-test-#.csv\n")
                 curr_child_file.write("experiment.weight.file = " + weight_files_server_path + embedding + "/weights/" +
-                                      scheme + "-" + dist_metric + "-" + dataset)
-
-                # The "ppb" dataset had to be modified in order to apply the embedding methods on it. That means that
-                # there are two versions of the dataset (the other one is called "ppb-wth0s"). In the experiments, the
-                # weights are based on the modified version, but it is the original version that is passed to the GSGP.
-                # This part takes care of it. Though this fix was excessively adhoc, it minimizes the risk of errors in
-                # future experiments.
-                if (dataset != "ppb") or (embedding == "original"):
-                    curr_child_file.write("-train-#.csv\n")
-                else:
-                    curr_child_file.write("-wth0s-train-#.csv\n")
-
+                                      scheme + "-" + dist_metric + "-" + dataset + "-train-#.csv\n")
                 curr_child_file.write("experiment.file.prefix = output-files/output-" + dataset + "\n")
 
                 # append the execution command to the batch file
