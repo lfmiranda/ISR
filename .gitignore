@@ -5,8 +5,11 @@ project.iml
 # Runnable files
 out
 
-# Experiment files
+# Experiments folder
 experiments/
+
+# Outputs folder
+outputs/
 
 # Misc
 .DS_Store
