@@ -108,7 +108,7 @@ for embedding, embedding_alias in embeddings.items():
                 curr_child_file.write("experiment.file.prefix = output-files/output-" + dataset + "\n")
 
                 # append the execution command to the batch file
-                batch_file.write("java -Xms512m -Xmx8g -jar " + exper_server_path + "GSGP-WeightedFitness.jar -p " +
+                batch_file.write("java -Xms512m -Xmx8g -jar " + exper_server_path + jar_name + " -p " +
                                  exper_server_path + exper_id + "/" + dataset + ".txt > " + output_server_path +
                                  output_folder + dataset + ".txt\n")
 
