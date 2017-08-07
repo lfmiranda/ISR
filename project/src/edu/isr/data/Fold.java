@@ -87,6 +87,12 @@ public class Fold {
         for (int i = 0; i < numInst; i++)
             instances.get(i).setWeight(weights[i]);
 
+        // the normalized weights should add up to 1. This piece of code checks that.
+        double sumWeights = 0;
+        for (int i = 0; i < numInst; i++)
+            sumWeights += weights[i];
+        assert Math.round(sumWeights) == 1 : "the normalized weights should add up to 1.";
+
         OutputHandler.writeWeights(foldName, instances, params); // write the weights in a file
     }
 
@@ -122,6 +128,7 @@ public class Fold {
         double highestWeight = 0;
 
         double[] weights = new double[numInst];
+        double sumWeights = 0;
 
         for (Instance inst : instances) {
             /* Distances (considering only the input space) between the instance for which we want to weigh and all
@@ -139,13 +146,12 @@ public class Fold {
             double weight = weighInstance(inst, params, scheme, sortedDistances); // weigh the current instance
             inst.setWeight(weight);
 
-            if (weight < lowestWeight) lowestWeight = weight;
-            if (weight > highestWeight) highestWeight = weight;
+            sumWeights += weight;
         }
 
         // normalize the weights
         for (Instance inst : instances)
-            weights[inst.getId()] = (inst.getWeight() - lowestWeight) / (highestWeight - lowestWeight);
+            weights[inst.getId()] = inst.getWeight() / sumWeights;
 
         return weights;
     }
