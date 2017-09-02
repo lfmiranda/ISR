@@ -1,0 +1,23 @@
+# Path to the folder containing the original folds.
+original.folds.path = ~/Dropbox/my_files/research/ISR/datasets/original/
+
+# Path to the folder containing the input folds created during the embedding generation step.
+input.path = ~/Dropbox/my_files/research/ISR/datasets/original/
+
+# Path where the output files will be written.
+output.path = ~/Dropbox/my_files/research/ISR/datasets/2-08.06.2017/original/
+
+# Dataset name.
+dataset.name = salustowicz1d-train
+
+# Weighting scheme.
+scheme = proximity-xy
+
+# Percentage of instances removed.
+selection.level = no_selection
+
+# Distance metric.
+distance.metric = 2
+
+# Number of instances taken as neighbors.
+number.neighbors = 2

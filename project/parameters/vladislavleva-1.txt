@@ -1,7 +1,7 @@
 original.folds.path = /Users/fernando/Dropbox/my_files/research/ISR/datasets/original/
 input.path = /Users/fernando/Dropbox/my_files/research/ISR/datasets/original/
 output.path = /Users/fernando/Dropbox/my_files/research/ISR/datasets/2-08.06.2017/original/
-dataset.name = ppb-wth0s-train
+dataset.name = vladislavleva-1-train
 scheme = nonlinearity
 selection.level = no_selection
 distance.metric = 2
