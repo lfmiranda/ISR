@@ -3,17 +3,26 @@ from os import chmod, makedirs, path
 # experiments variables
 system_id = "6-gsgp-wf-03.07.2017"
 jar_name = "GSGP-WeightedFitness.jar"
-embeddings = {"original": "orig", "isomap": "imap", "mds": "mds", "pca": "pca", "tsne": "tsne"}
-schemes = {"proximity-x": "pro_x", "proximity-xy": "pro_xy",
-           "surrounding-x": "sur_x", "surrounding-xy": "sur_xy",
-           "remoteness-x": "rem_y", "remoteness-xy": "rem_xy"}
-dist_metrics = ["L0.1", "L0.5", "L1.0", "L2.0"]
+schemes = {"proximity-xy": "pro_xy", "surrounding-xy": "sur_xy", "remoteness-xy": "rem_xy"}
 datasets = ["airfoil", "ccn", "ccun", "concrete", "energyCooling", "energyHeating", "keijzer-6", "keijzer-7",
-            "parkinsons", "ppb-wth0s", "towerData", "vladislavleva-1", "wineRed", "wineWhite", "yacht"]
-synthetic_datasets = ["keijzer-6", "keijzer-7", "vladislavleva-1"]
-exper_number = 1
-exper_date = "05.07.2017"
-output_number = 1
+            "parkinsons", "towerData", "vladislavleva-1", "wineRed", "wineWhite", "yacht"]
+dist_metrics = ["L1.0", "L2.0"]
+exper_number = 179
+exper_date = "31.08.2017"
+output_number = 180
+
+# kna stands for k = number of attributes.
+# k1pni and k5pni stands for k = 1% and 5% of the number of instances, respectively.
+neighborhood_size_ids = ["kna", "k1", "k1pni", "k5pni"]
+
+# datasets information (necessary for defining, in some cases, the neighborhood sizes)
+numInst = {"airfoil": 1503, "ccn": 1994, "ccun": 1994, "concrete": 1030, "energyCooling": 768, "energyHeating": 768,
+           "keijzer-6": 50, "keijzer-7": 100, "parkinsons": 5875, "towerData": 4999, "vladislavleva-1": 100,
+           "wineRed": 1599, "wineWhite": 4898, "yacht": 308}
+
+numAttrs = {"airfoil": 5, "ccn": 122, "ccun": 124, "concrete": 8, "energyCooling": 8, "energyHeating": 8,
+            "keijzer-6": 2, "keijzer-7": 2, "parkinsons": 18, "towerData": 25, "vladislavleva-1": 3, "wineRed": 11,
+            "wineWhite": 11, "yacht": 6}
 
 # local paths
 root = path.expanduser("~") + "/Dropbox/my_files/research/ISR/"
@@ -26,7 +35,7 @@ weight_files_server_path = server_root + "datasets/2-08.06.2017/"
 exper_server_path = server_root + "experiments/" + system_id + "/"
 output_server_path = server_root + "outputs/"
 
-# create and change the permition for the folder in which the output files will be written
+# create and change the permission for the folder in which the output files will be written
 if not path.exists(exper_local_path + "outputs/"):
     makedirs(exper_local_path + "outputs/")
 chmod(exper_local_path + "outputs/", 0o777)
@@ -35,11 +44,12 @@ chmod(exper_local_path + "outputs/", 0o777)
 chmod(exper_local_path + jar_name, 0o777)
 
 # generation of the batch script and the configuration files
-for embedding, embedding_alias in embeddings.items():
+for neighborhood_size_id in neighborhood_size_ids:
     for scheme, scheme_alias in schemes.items():
         for dist_metric in dist_metrics:
-            # full identifier for the experiment
-            exper_id = "-".join([str(exper_number), exper_date, embedding_alias, scheme_alias, dist_metric])
+            # full identifier of each experiment
+            exper_id = "-".join([str(exper_number), exper_date, "orig", scheme_alias, neighborhood_size_id,
+                                 dist_metric])
 
             # full identifier for the output folder
             output_folder = "-".join([str(output_number), system_id, exper_id]) + "/"
@@ -61,6 +71,8 @@ for embedding, embedding_alias in embeddings.items():
             # create the master configuration file
             parent_file = open(config_files_local_path + "master.txt", "w")
 
+            # parameters of the master file
+            parent_file.write("evol.num.threads = 8\n")
             parent_file.write("experiment.output.dir = " + output_server_path + output_folder + "\n")
             parent_file.write("experiment.seed = 123456\n")
             parent_file.write("tree.build.terminals = edu.gsgp.nodes.terminals.ERC\n")
@@ -77,7 +89,6 @@ for embedding, embedding_alias in embeddings.items():
             parent_file.write("experiment.num.repetition = 50\n")
             parent_file.write("pop.size = 1000\n")
             parent_file.write("rt.pool.size = 200\n")
-            parent_file.write("evol.num.threads = 4\n")
             parent_file.write("pop.ind.selector.tourn.size = 10\n")
             parent_file.write("evol.min.error = 0\n")
             parent_file.write("breed.mut.step = 0.1\n")
@@ -91,11 +102,6 @@ for embedding, embedding_alias in embeddings.items():
             parent_file.write("breed.spread.alpha = 2.0\n")
 
             for dataset in datasets:
-                # The embedding methods were not applied to synthetic datasets, thus no configuration file should be
-                # created for this type of dataset.
-                if (dataset in synthetic_datasets) and (not embedding == "original"):
-                    continue
-
                 # create the child configuration file
                 curr_child_file = open(config_files_local_path + dataset + ".txt", "w")
 
@@ -103,9 +109,26 @@ for embedding, embedding_alias in embeddings.items():
                 curr_child_file.write("experiment.data = " + original_datasets_server_path + dataset + "-train-#.csv\n")
                 curr_child_file.write("experiment.data.test = " + original_datasets_server_path + dataset +
                                       "-test-#.csv\n")
-                curr_child_file.write("experiment.weight.file = " + weight_files_server_path + embedding + "/weights/" +
-                                      scheme + "-" + dist_metric + "-" + dataset + "-train-#.csv\n")
-                curr_child_file.write("experiment.file.prefix = output-files/output-" + dataset + "\n")
+
+                assert neighborhood_size_id in ["kna", "k1", "k1pni", "k5pni"]
+
+                # find the actual number of neighbors for each dataset
+                if neighborhood_size_id == "kna":
+                    num_neighbors = numAttrs[dataset]
+                elif neighborhood_size_id == "k1pni":
+                    num_neighbors = int(0.01 * numInst[dataset])
+                elif neighborhood_size_id == "k5pni":
+                    num_neighbors = int(0.05 * numInst[dataset])
+                else:
+                    num_neighbors = 1
+
+                if num_neighbors < 1:
+                    num_neighbors = 1
+                num_neighbors = str(num_neighbors)
+
+                curr_child_file.write("experiment.weight.file = " + weight_files_server_path + "original/weights/" +
+                                      "-".join([scheme, "k" + num_neighbors, dist_metric, dataset, "train-#.csv\n"]))
+                curr_child_file.write("experiment.file.prefix = out_files/output-" + dataset + "\n")
 
                 # append the execution command to the batch file
                 batch_file.write("java -Xms512m -Xmx8g -jar " + exper_server_path + jar_name + " -p " +
@@ -114,9 +137,9 @@ for embedding, embedding_alias in embeddings.items():
 
             # server folder in which the output files will be written
             output_local_path = exper_local_path + "outputs/" + output_folder
-            if not path.exists(output_local_path + "output-files/"):
-                makedirs(output_local_path + "output-files/")
-            chmod(output_local_path + "output-files/", 0o777)
+            if not path.exists(output_local_path + "out_files/"):
+                makedirs(output_local_path + "out_files/")
+            chmod(output_local_path + "out_files/", 0o777)
             chmod(output_local_path, 0o777)
 
             exper_number += 1
