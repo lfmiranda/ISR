@@ -5,22 +5,22 @@ system_id = "5-gsgp-03.07.2017"
 jar_name = "GSGP-Original.jar"
 datasets = ["airfoil", "ccn", "ccun", "concrete", "energyCooling", "energyHeating", "keijzer-6", "keijzer-7",
             "parkinsons", "ppb-wth0s", "towerData", "vladislavleva-1", "wineRed", "wineWhite", "yacht"]
-exper_number = 2
-exper_date = "06.08.2017"
-output_number = 123
+exper_number = 1
+exper_date = "08.08.2017"
+output_number = 126
 
 # local paths
 root = path.expanduser("~") + "/Dropbox/my_files/research/ISR/"
 exper_local_path = root + "experiments/" + system_id + "/"
 
 # server paths
-server_root = "/home/fernando/research/ISR/"
+server_root = "~/research/isr/"
 original_datasets_server_path = server_root + "datasets/normalized/"
 exper_server_path = server_root + "experiments/" + system_id + "/"
 output_server_path = server_root + "outputs/"
 
-# create and change the permition for the folder in which the output files will be written
-if not path.exists(exper_local_path + "outputs/"):
+# create and change the permission for the folder in which the output files will be written
+if not path.exists(exper_local_path + "outputscd /"):
     makedirs(exper_local_path + "outputs/")
 chmod(exper_local_path + "outputs/", 0o777)
 
@@ -66,7 +66,7 @@ parent_file.write("evol.num.generation = 250\n")
 parent_file.write("experiment.num.repetition = 50\n")
 parent_file.write("pop.size = 1000\n")
 parent_file.write("rt.pool.size = 200\n")
-parent_file.write("evol.num.threads = 8\n")
+parent_file.write("evol.num.threads = 16\n")
 parent_file.write("pop.ind.selector.tourn.size = 10\n")
 parent_file.write("evol.min.error = 0\n")
 parent_file.write("breed.mut.step = 0.1\n")
@@ -86,7 +86,7 @@ for dataset in datasets:
     curr_child_file.write("parent = " + exper_server_path + exper_id + "/master.txt\n")
     curr_child_file.write("experiment.data = " + original_datasets_server_path + dataset + "-train-#.csv\n")
     curr_child_file.write("experiment.data.test = " + original_datasets_server_path + dataset + "-test-#.csv\n")
-    curr_child_file.write("experiment.file.prefix = output-files/output-" + dataset + "\n")
+    curr_child_file.write("experiment.file.prefix = out_files/output-" + dataset + "\n")
 
     # append the execution command to the batch file
     batch_file.write("java -Xms512m -Xmx8g -jar " + exper_server_path + jar_name + " -p " + exper_server_path +
