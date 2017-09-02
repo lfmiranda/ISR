@@ -2,7 +2,7 @@ package edu.isr;
 
 class Main {
     /**
-     * Triggers the experiment and keep track of its execution time.
+     * Triggers the experiment and keeps track of its execution time.
      * @param args Command line arguments
      */
     public static void main(String[] args) {

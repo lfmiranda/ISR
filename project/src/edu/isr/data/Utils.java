@@ -20,12 +20,6 @@ class Utils {
         double sum = 0;
 
         for (int i = 0; i < numDim; i++) {// for each input attribute
-            double blum = Math.pow(Math.abs(p[i] - q[i]), z);
-
-            if (blum == 0.010892387756455367) {
-                System.out.println("In");
-            }
-
             sum += Math.pow(Math.abs(p[i] - q[i]), z);
         }
 

@@ -63,8 +63,8 @@ public class OutputHandler {
      * @throws IOException If some error occurs while creating the file.
      */
     static void writeWeights(String foldName, List<Instance> instances, ParametersManager params) throws IOException {
-        String fileName = params.getOutPath() + "weights/" +
-                String.join("-", params.getScheme(), "L" + Double.toString(params.getDistMetric()), foldName);
+        String fileName = params.getOutPath() + "weights/" + String.join("-", params.getScheme(), "k" +
+                Integer.toString(params.getNumNeighbors()), "L" + Double.toString(params.getDistMetric()), foldName);
 
         try (PrintWriter out = new PrintWriter(fileName, "UTF-8")) {
             for (Instance inst : instances) {

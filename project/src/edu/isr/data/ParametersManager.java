@@ -279,7 +279,7 @@ public class ParametersManager {
     }
 
     /**
-     * After the execution of the weighting step, each instance has a rank. The construction of this rank is based on
+     * After the execution of the weighting step, each instance get a rank. The construction of this rank is based on
      * the folds created after the embedding generation step. The selection, however, is made over the original folds,
      * which the path is stored by the variable {@code origPath}.
      * @return The path to the folder containing the original folds.

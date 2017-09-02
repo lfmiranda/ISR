@@ -124,9 +124,6 @@ public class Fold {
      * @return An array with all the weights.
      */
     private double[] weighInstances(ParametersManager params, String scheme) {
-        double lowestWeight = Double.POSITIVE_INFINITY;
-        double highestWeight = 0;
-
         double[] weights = new double[numInst];
         double sumWeights = 0;
 
