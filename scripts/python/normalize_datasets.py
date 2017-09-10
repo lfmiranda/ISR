@@ -40,7 +40,7 @@ def main():
             num_inst_ts = ts_data.shape[0]
             num_attr = tr_data.shape[1]
 
-            # Go through each attribute, first checking the minimum value and the range and then overwritting all the
+            # Go through each attribute, first checking the minimum value and the range and then overwriting all the
             # values for their respective normalized values.
             for attr_id in range(num_attr):
                 # training and test values of the current attribute
@@ -61,8 +61,8 @@ def main():
 
 
 # Normalize the values of a specific attribute.
-def normalize_values(data, attr_values, attr_min, attr_range, attr_id, numInst):
-    for i in range(numInst):
+def normalize_values(data, attr_values, attr_min, attr_range, attr_id, num_inst):
+    for i in range(num_inst):
         value = attr_values[i]
         data[i, attr_id] = (value - attr_min) / attr_range
 
