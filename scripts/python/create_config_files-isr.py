@@ -4,20 +4,24 @@ from os import chmod, makedirs, path
 systems = ["ISR"]
 embeddings = ["original"]
 selection_level = "no_selection"
-schemes = ["proximity-xy", "surrounding-xy", "remoteness-xy"]
+schemes = ["remoteness-xy"]
 dist_metrics = ["1.0", "2.0"]
 dataset_type = "train"
-datasets = ["airfoil", "ccn", "ccun", "concrete", "energyCooling", "energyHeating", "keijzer-6", "keijzer-7",
-            "parkinsons", "towerData", "vladislavleva-1", "wineRed", "wineWhite", "yacht"]
+datasets = ["keijzer-1", "keijzer-2", "keijzer-3", "keijzer-4", "keijzer-6", "keijzer-7", "keijzer-8", "keijzer-9",
+            "vladislavleva-1", "vladislavleva-2", "vladislavleva-3", "vladislavleva-4", "vladislavleva-5",
+            "vladislavleva-7", "vladislavleva-8"]
 
 # kna stands for k = number of attributes.
 # k1pni and k5pni stands for k = 1% and 5% of the number of instances, respectively.
-neighborhood_size_ids = ["kna", "k1", "k1pni", "k5pni"]
+neighborhood_size_ids = ["k1pni"]
 
 # datasets information (necessary for defining, in some cases, the neighborhood sizes)
 numInst = {"airfoil": 1503, "ccn": 1994, "ccun": 1994, "concrete": 1030, "energyCooling": 768, "energyHeating": 768,
            "keijzer-6": 50, "keijzer-7": 100, "parkinsons": 5875, "towerData": 4999, "vladislavleva-1": 100,
-           "wineRed": 1599, "wineWhite": 4898, "yacht": 308}
+           "wineRed": 1599, "wineWhite": 4898, "yacht": 308,
+           "keijzer-1": 21, "keijzer-2": 41, "keijzer-3": 61, "keijzer-4": 101, "keijzer-8": 101, "keijzer-9": 101,
+           "vladislavleva-2": 100, "vladislavleva-3": 600, "vladislavleva-4": 1024, "vladislavleva-5": 300,
+           "vladislavleva-7": 300, "vladislavleva-8": 50}
 
 numAttrs = {"airfoil": 5, "ccn": 122, "ccun": 124, "concrete": 8, "energyCooling": 8, "energyHeating": 8,
             "keijzer-6": 2, "keijzer-7": 2, "parkinsons": 18, "towerData": 25, "vladislavleva-1": 3, "wineRed": 11,

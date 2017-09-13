@@ -3,11 +3,12 @@ from os import chmod, makedirs, path
 # experiments variables
 system_id = "5-gsgp-03.07.2017"
 jar_name = "GSGP-Original.jar"
-datasets = ["airfoil", "ccn", "ccun", "concrete", "energyCooling", "energyHeating", "keijzer-6", "keijzer-7",
-            "parkinsons", "ppb-wth0s", "towerData", "vladislavleva-1", "wineRed", "wineWhite", "yacht"]
-exper_number = 1
-exper_date = "08.08.2017"
-output_number = 126
+datasets = ["keijzer-1", "keijzer-2", "keijzer-3", "keijzer-4", "keijzer-6", "keijzer-7", "keijzer-8", "keijzer-9",
+            "vladislavleva-1", "vladislavleva-2", "vladislavleva-3", "vladislavleva-4", "vladislavleva-5",
+            "vladislavleva-7", "vladislavleva-8"]
+exper_number = 2
+exper_date = "11.09.2017"
+output_number = 203
 
 # local paths
 root = path.expanduser("~") + "/Dropbox/my_files/research/ISR/"
@@ -20,7 +21,7 @@ exper_server_path = server_root + "experiments/" + system_id + "/"
 output_server_path = server_root + "outputs/"
 
 # create and change the permission for the folder in which the output files will be written
-if not path.exists(exper_local_path + "outputscd /"):
+if not path.exists(exper_local_path + "outputs /"):
     makedirs(exper_local_path + "outputs/")
 chmod(exper_local_path + "outputs/", 0o777)
 
@@ -50,6 +51,7 @@ batch_file.write("#SBATCH --exclusive\n\n")
 # generation of the configuration files
 parent_file = open(config_files_local_path + "master.txt", "w")
 
+parent_file.write("evol.num.threads = 8\n")
 parent_file.write("experiment.output.dir = " + output_server_path + output_folder + "\n")
 parent_file.write("experiment.seed = 123456\n")
 parent_file.write("tree.build.terminals = edu.gsgp.nodes.terminals.ERC\n")
@@ -66,7 +68,6 @@ parent_file.write("evol.num.generation = 250\n")
 parent_file.write("experiment.num.repetition = 50\n")
 parent_file.write("pop.size = 1000\n")
 parent_file.write("rt.pool.size = 200\n")
-parent_file.write("evol.num.threads = 16\n")
 parent_file.write("pop.ind.selector.tourn.size = 10\n")
 parent_file.write("evol.min.error = 0\n")
 parent_file.write("breed.mut.step = 0.1\n")
