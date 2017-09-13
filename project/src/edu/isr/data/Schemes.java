@@ -134,17 +134,14 @@ class Schemes {
         int numDimensions = inst.getAllAttrs().length;
         int numNeighbors = inst.getNeighbors().size();
 
-        double[][] x = new double[numNeighbors + 1][];
-        double[] y = new double[numNeighbors + 1];
-
-        x[0] = inst.getInput();
-        y[0] = inst.getOutput();
+        double[][] x = new double[numNeighbors][];
+        double[] y = new double[numNeighbors];
 
         // get the position of each neighbor
         for (int i = 0; i < numNeighbors; i++) {
             Instance neighbor = inst.getNeighbors().get(i);
-            x[i + 1] = neighbor.getInput();
-            y[i + 1] = neighbor.getOutput();
+            x[i] = neighbor.getInput();
+            y[i] = neighbor.getOutput();
         }
 
         regression.newSampleData(y, x); // perform the multiple linear regression
@@ -156,12 +153,12 @@ class Schemes {
         hyperPlane[numDimensions - 1] = -1;
         hyperPlane[numDimensions] = hyperPlaneParams[0];
 
-        double[] point = inst.getAllAttrs();
+        double[] posInst = inst.getAllAttrs();
 
         double num = 0;
         double den = 0;
         for (int i = 0; i < numDimensions; i++) {
-            num += hyperPlane[i] * point[i];
+            num += hyperPlane[i] * posInst[i];
             den += Math.pow(hyperPlane[i], 2);
         }
         num += hyperPlane[numDimensions];

@@ -31,7 +31,7 @@ public class Fold {
      */
     public void normalizeData() {
         for (int i = 0; i < numAttr; i++) { // for each attribute (input and output)
-            double[] allValuesSingleAttr = new double[numInst];
+            double[] allValuesEachAttr = new double[numInst];
             double min = Double.POSITIVE_INFINITY;
             double max = Double.NEGATIVE_INFINITY;
 
@@ -39,7 +39,7 @@ public class Fold {
             for (int j = 0; j < numInst; j++) {
                 double value = instances.get(j).getAllAttrs()[i];
 
-                allValuesSingleAttr[j] = value;
+                allValuesEachAttr[j] = value;
                 if (value < min) min = value;
                 if (value > max) max = value;
             }
@@ -48,7 +48,7 @@ public class Fold {
 
             // normalize the attribute values
             for (int j = 0; j < numInst; j++) {
-                instances.get(j).setAttrValue(i, numAttr, (allValuesSingleAttr[j] - min) / range);
+                instances.get(j).setAttrValue(i, numAttr, (allValuesEachAttr[j] - min) / range);
             }
         }
     }
@@ -104,12 +104,12 @@ public class Fold {
         distBetweenInst = new double[numInst][numInst];
 
         for (int i = 1; i < numInst; i++) {
-            for (int j = 0; j < i; j++) {
-                double[] u = instances.get(i).getInput();
-                double[] v = instances.get(j).getInput();
-                int d = numAttr - 1;
+            double[] u = instances.get(i).getInput();
 
-                distBetweenInst[i][j] = Utils.measureDistance(u, v, d, distMetric);
+            for (int j = 0; j < i; j++) {
+                double[] v = instances.get(j).getInput();
+
+                distBetweenInst[i][j] = Utils.measureDistance(u, v, numAttr - 1, distMetric);
                 distBetweenInst[j][i] = distBetweenInst[i][j];
             }
         }
@@ -136,7 +136,7 @@ public class Fold {
             of them. The entries are sorted by their distance value (and duplicates are allowed). */
             TreeMultimap<Double, Integer> sortedDistances = TreeMultimap.create();
 
-            // fill the map
+            // fill the map (this may be the bottleneck of the execution time)
             for (int i = 0; i < numInst; i++)
                 sortedDistances.put(distOtherInst[i], i);
 
