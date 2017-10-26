@@ -10,11 +10,11 @@ datasets = ["airfoil", "ccn", "ccun", "concrete", "energyCooling", "energyHeatin
 
 # kna stands for k = number of attributes.
 # k1pni and k5pni stands for k = 1% and 5% of the number of instances, respectively.
-neighborhood_size_ids = ["kna", "k1", "k1pni", "k5pni"]
+neighborhood_size_ids = ["k1", "k2", "k5", "k9", "k1pni", "k5pni", "kna"]
 
 # paths
 root = path.expanduser("~") + "/Dropbox/my_files/research/ISR/"
-results_path = root + "results/5-31.08.2017/"
+results_path = root + "results/7-18.09.2017/"
 
 # read the data
 values = np.loadtxt(results_path + "raw_values.csv", delimiter=",")
@@ -35,7 +35,7 @@ for neighborhood_size_id in neighborhood_size_ids:
                     j += 1
             i += 1
 
-out_file = open(results_path + "values.csv", "w")
+out_file = open(results_path + "organized_values.csv", "w")
 
 # write the mapped values in the output file
 for dataset in datasets:
