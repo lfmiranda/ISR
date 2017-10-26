@@ -5,24 +5,40 @@ package edu.isr.data;
  */
 class Utils {
     /**
-     *
-     * @param p The first point.
-     * @param q The second point.
-     * @param numDim The number of dimensions. Used in order to avoid the introduction of bugs when changing from input
-     *               to input-output space and vice-versa.
-     * @param z Parameter of the parameterized Minkowski metric. For example, z = 1 means Manhattan distance and z = 2
-     *          means Euclidean distance. If z &lt; 1, then we have the so called fractional distance.
-     * @return The distance between p and q.
+     * Measures the distance between a specific point and the origin of the Cartesian coordinate system.
+     * @param coordinates Set of coordinates indicating the position of the point.
+     * @param numDimensions Number of dimensions of the space.
+     * @param distMetric Parameter of the parameterized Minkowski metric. For example, {@code distMetric} = 1 means
+     *                   Manhattan distance and {@code distMetric} = 2 means Euclidean distance.
+     * @return The length of the vector linking a specific point to the origin of the Cartesian coordinate system.
      */
-    static double measureDistance(double[] p, double[] q, int numDim, double z) {
-        assert p.length == numDim && q.length == numDim: "number of dimensions does not match the arrays length.";
+    static double measureDist(double[] coordinates, int numDimensions, double distMetric) {
+        assert coordinates.length == numDimensions : "number of dimensions does not match the number of coordinates.";
 
         double sum = 0;
+        for (double coordinate : coordinates)
+            sum += Math.pow(coordinate, distMetric);
 
-        for (int i = 0; i < numDim; i++) {// for each input attribute
-            sum += Math.pow(Math.abs(p[i] - q[i]), z);
-        }
+        return Math.pow(sum, 1 / distMetric);
+    }
 
-        return Math.pow(sum, 1 / z);
+    /**
+     * Measures the distance between two points.
+     * @param coordinatesP1 Set of coordinates indicating the position of the first point.
+     * @param coordinatesP2 Set of coordinates indicating the position of the second point.
+     * @param numDimensions Number of dimensions of the space.
+     * @param distMetric Parameter of the parameterized Minkowski metric. For example, {@code distMetric} = 1 means
+     *                   Manhattan distance and {@code distMetric} = 2 means Euclidean distance.
+     * @return The length of the vector linking the two points.
+     */
+    static double measureDist(double[] coordinatesP1, double[] coordinatesP2, int numDimensions, double distMetric) {
+        assert (coordinatesP1.length == numDimensions) && (coordinatesP2.length == numDimensions) :
+                "number of dimensions does not match the number of coordinates.";
+
+        double sum = 0;
+        for (int i = 0; i < numDimensions; i++)
+            sum += Math.pow(coordinatesP1[i] - coordinatesP2[i], distMetric);
+
+        return Math.pow(sum, 1 / distMetric);
     }
 }

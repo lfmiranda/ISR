@@ -5,48 +5,47 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 
 /**
- * Responsible for handling most of the output operations necessary for running the experiment.
+ * Responsible for handling the output operations necessary for running the experiment.
  */
 public class OutputHandler {
-    private static String scheme;
-    private static String selectionLevel;
-    private static String distMetric;
-
     /**
-     * Create a new {@code OutputHandler} and the folder where all output files will be saved.
+     * Prints all loaded parameters.
      * @param params Experiment parameters.
-     * @throws IOException If some error occurs while creating the output folder.
      */
-    public OutputHandler(ParametersManager params) throws IOException {
-        scheme = params.getScheme();
-        selectionLevel = "s" + params.getSelectionLevel();
-        distMetric = Double.toString(params.getDistMetric());
+    public static void printLoadedParameters(ParametersManager params) {
+        System.out.println("Loaded parameters:");
 
-        Path experimentPath = Paths.get(params.getOutPath() + String.join("/", selectionLevel, scheme, distMetric, ""));
-        Path weightsPath = Paths.get(params.getOutPath() + "weights/");
-
-        try {
-            // if any of the output folders do not exist, create it
-            if (!Files.exists(experimentPath) && (!params.getSelectionLevel().equals("no_selection"))) {
-                Files.createDirectories(experimentPath);
-            }
-            if (!Files.exists(weightsPath)) Files.createDirectories(weightsPath);
-        } catch (IOException e) {
-            throw new IOException("Error while creating the output folder.");
-        }
+        System.out.println("  Path to original folds: " + params.getOrigFoldsPath());
+        System.out.println("  Input path: " + params.getFoldsPath());
+        System.out.println("  Output path: " + params.getOutPath());
+        System.out.println("  Dataset name: " + params.getDatasetName());
+        System.out.println("  Weighting scheme: " + params.getWeightingFunction());
+        System.out.println("  Selection level: " + params.getSelectionLevel());
+        System.out.println("  Distance metric: " + params.getDistMetric());
+        System.out.println("  Number of neighbors: " + params.getNumNeighbors());
+        System.out.println("  Combination method: " + params.getCombMethod() + "\n");
     }
 
     /**
      * Create a file registering all parameters loaded.
+     * @param expId Identifier based on the names of the weighting function, neighborhood size, and the distance metric.
      * @param params Experiment parameters.
      * @throws IOException If some error occurs while creating the log file.
      */
-    public static void writeLoadedParametersLog(ParametersManager params) throws IOException {
-        String fileName = params.getOutPath() + String.join("/", selectionLevel, scheme, distMetric, "") +
-                "loaded_parameters-" + params.getDatasetName() + ".txt";
+    public static void logLoadedParameters(String expId, ParametersManager params) throws IOException {
+        Path outPath = Paths.get(params.getOutPath() + expId + "/logs/" + params.getSelectionLevel());
+
+        try {
+            // creates the folder where the logs should be written if it does not exist yet
+            if (!Files.exists(outPath))
+                Files.createDirectories(outPath);
+        } catch (IOException e) {
+            throw new IOException("Error while creating the folder where the logs be written.");
+        }
+
+        String fileName = outPath + "/" + params.getDatasetName() + ".txt";
 
         try (PrintWriter out = new PrintWriter(fileName, "UTF-8")) {
             out.print(params.getLoadedParametersLog());
@@ -56,21 +55,29 @@ public class OutputHandler {
     }
 
     /**
-     * Create a file registering the weights of all instances in a specific fold.
-     * @param foldName Full name of the folder, including its index and extension.
-     * @param instances List containing all the instances of the fold.
+     * Writes a set of weight values in a file.
+     * @param weights Array with the weight values of all instances.
+     * @param expId Identifier based on the names of the weighting function, neighborhood size, and the distance metric.
      * @param params Experiment parameters.
-     * @throws IOException If some error occurs while creating the file.
+     * @throws IOException If some error occurs while creating the file containing the weight values.
      */
-    static void writeWeights(String foldName, List<Instance> instances, ParametersManager params) throws IOException {
-        String fileName = params.getOutPath() + "weights/" + String.join("-", params.getScheme(), "k" +
-                Integer.toString(params.getNumNeighbors()), "L" + Double.toString(params.getDistMetric()), foldName);
+    static void writeWeights(double[] weights, String expId, ParametersManager params, int foldId) throws IOException {
+        Path outPath = Paths.get(params.getOutPath() + expId + "/weights");
+
+        try {
+            // creates the folder where the weights file should be written if it does not exist yet
+            if (!Files.exists(outPath))
+                Files.createDirectories(outPath);
+        } catch (IOException e) {
+            throw new IOException("Error while creating the folder where the weights should be written.");
+        }
+
+        String fileName = outPath + "/" + params.getDatasetName() + "-" + foldId + ".csv";
 
         try (PrintWriter out = new PrintWriter(fileName, "UTF-8")) {
-            for (Instance inst : instances) {
-                out.println(inst.getWeight());
-            }
-            out.println();
+            // writes the weight values
+            for (double weightValue : weights)
+                out.println(weightValue);
         } catch (IOException e) {
             throw new IOException("Error while writing the weights.");
         }

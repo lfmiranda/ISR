@@ -4,7 +4,7 @@ parent =
 # Path to the folder containing the original folds.
 original.folds.path = 
 
-# Path to the folder containing the input folds created during the embedding generation step.
+# Path to the folder containing the input folds. It is the same as the "original.folds.path" parameter if no dimensionality reduction method was applied to the datasets.
 input.path = 
 
 # Path to the output folder.
@@ -13,10 +13,10 @@ output.path =
 # Dataset name.
 dataset.name = 
 
-# Weighting scheme.
-scheme = 
+# Weighting function.
+weighting.function = 
 
-# Percentage of instances removed.
+# Percentage of instances that should be removed.
 selection.level = 
 
 # Distance metric.
@@ -24,4 +24,7 @@ distance.metric =
 
 # Number of instances taken as neighbors.
 number.neighbors = 
+
+# Method use to combine weights when using the remoteness weighting function.
+combination.method = 
 

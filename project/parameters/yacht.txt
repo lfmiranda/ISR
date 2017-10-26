@@ -1,8 +1,0 @@
-original.folds.path = /Users/fernando/Dropbox/my_files/research/ISR/datasets/original/
-input.path = /Users/fernando/Dropbox/my_files/research/ISR/datasets/original/
-output.path = /Users/fernando/Dropbox/my_files/research/ISR/datasets/2-08.06.2017/original/
-dataset.name = yacht-train
-scheme = nonlinearity
-selection.level = no_selection
-distance.metric = 2
-number.neighbors = 5

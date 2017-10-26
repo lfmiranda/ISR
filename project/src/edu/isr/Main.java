@@ -1,6 +1,6 @@
 package edu.isr;
 
-class Main {
+public class Main {
     /**
      * Triggers the experiment and keeps track of its execution time.
      * @param args Command line arguments
@@ -9,9 +9,9 @@ class Main {
         long startTime = System.currentTimeMillis();
 
         try {
-            // parse the command line and set all the parameters necessary for running the experiment
-            ExperimentManager experiment = new ExperimentManager(args);
-            experiment.runExperiment();
+            // parses the command line and sets all the parameters necessary for running the experiment
+            ExperimentManager experimentManager = new ExperimentManager(args);
+            experimentManager.runExperiment();
         } catch (Exception e) {
             System.out.println(e.getMessage());
             System.exit(1);
