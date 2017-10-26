@@ -4,16 +4,15 @@ from os import chmod, makedirs, path
 systems = ["ISR"]
 embeddings = ["original"]
 selection_level = "no_selection"
-schemes = ["remoteness-xy"]
+schemes = ["nonlinearity"]
 dist_metrics = ["1.0", "2.0"]
 dataset_type = "train"
-datasets = ["keijzer-1", "keijzer-2", "keijzer-3", "keijzer-4", "keijzer-6", "keijzer-7", "keijzer-8", "keijzer-9",
-            "vladislavleva-1", "vladislavleva-2", "vladislavleva-3", "vladislavleva-4", "vladislavleva-5",
-            "vladislavleva-7", "vladislavleva-8"]
+datasets = ["airfoil", "ccn", "ccun", "concrete", "energyCooling", "energyHeating", "keijzer-6", "keijzer-7",
+            "parkinsons", "towerData", "vladislavleva-1", "wineRed", "wineWhite", "yacht"]
 
 # kna stands for k = number of attributes.
 # k1pni and k5pni stands for k = 1% and 5% of the number of instances, respectively.
-neighborhood_size_ids = ["k1pni"]
+neighborhood_size_ids = ["k1", "k2", "k5", "k9", "k1pni", "k5pni", "kna"]
 
 # datasets information (necessary for defining, in some cases, the neighborhood sizes)
 numInst = {"airfoil": 1503, "ccn": 1994, "ccun": 1994, "concrete": 1030, "energyCooling": 768, "energyHeating": 768,
@@ -23,8 +22,8 @@ numInst = {"airfoil": 1503, "ccn": 1994, "ccun": 1994, "concrete": 1030, "energy
            "vladislavleva-2": 100, "vladislavleva-3": 600, "vladislavleva-4": 1024, "vladislavleva-5": 300,
            "vladislavleva-7": 300, "vladislavleva-8": 50}
 
-numAttrs = {"airfoil": 5, "ccn": 122, "ccun": 124, "concrete": 8, "energyCooling": 8, "energyHeating": 8,
-            "keijzer-6": 2, "keijzer-7": 2, "parkinsons": 18, "towerData": 25, "vladislavleva-1": 3, "wineRed": 11,
+numInAttrs = {"airfoil": 5, "ccn": 122, "ccun": 124, "concrete": 8, "energyCooling": 8, "energyHeating": 8,
+            "keijzer-6": 1, "keijzer-7": 1, "parkinsons": 18, "towerData": 25, "vladislavleva-1": 2, "wineRed": 11,
             "wineWhite": 11, "yacht": 6}
 
 # paths related to the experiments
@@ -54,13 +53,16 @@ for system in systems:
 
         for scheme in schemes:
             for neighborhood_size_id in neighborhood_size_ids:
+                if scheme == "nonlinearity" and neighborhood_size_id != "kna":
+                    continue
+
                 for dist_metric in dist_metrics:
                     for dataset in datasets:
-                        assert neighborhood_size_id in ["kna", "k1", "k1pni", "k5pni"]
+                        assert neighborhood_size_id in ["k1", "k2", "k5", "k9", "k1pni", "k5pni", "kna"]
 
                         # find the actual number of neighbors for each dataset
                         if neighborhood_size_id == "kna":
-                            num_neighbors = numAttrs[dataset]
+                            num_neighbors = numInAttrs[dataset] * 2
                         elif neighborhood_size_id == "k1pni":
                             num_neighbors = int(0.01 * numInst[dataset])
                         elif neighborhood_size_id == "k5pni":
