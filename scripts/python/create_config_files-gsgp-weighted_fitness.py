@@ -3,18 +3,17 @@ from os import chmod, makedirs, path
 # experiments variables
 system_id = "6-gsgp-wf-03.07.2017"
 jar_name = "GSGP-WeightedFitness.jar"
-schemes = {"remoteness-xy": "rem_xy"}
-datasets = ["keijzer-1", "keijzer-2", "keijzer-3", "keijzer-4", "keijzer-6", "keijzer-7", "keijzer-8", "keijzer-9",
-            "vladislavleva-1", "vladislavleva-2", "vladislavleva-3", "vladislavleva-4", "vladislavleva-5",
-            "vladislavleva-7", "vladislavleva-8"]
+schemes = {"proximity-xy": "pro_xy", "surrounding-xy": "sur_xy", "remoteness-xy": "rem_xy", "nonlinearity": "nlin"}
+datasets = ["airfoil", "ccn", "ccun", "concrete", "energyCooling", "energyHeating", "keijzer-6", "keijzer-7",
+            "parkinsons", "towerData", "vladislavleva-1", "wineRed", "wineWhite", "yacht"]
 dist_metrics = ["L1.0", "L2.0"]
-exper_number = 195
-exper_date = "31.08.2017"
-output_number = 196
+exper_number = 202
+exper_date = "18.09.2017"
+output_number = 204
 
 # kna stands for k = number of attributes.
 # k1pni and k5pni stands for k = 1% and 5% of the number of instances, respectively.
-neighborhood_size_ids = ["k1pni"]
+neighborhood_size_ids = ["k1", "k2", "k5", "k9", "k1pni", "k5pni", "kna"]
 
 # datasets information (necessary for defining, in some cases, the neighborhood sizes)
 numInst = {"airfoil": 1503, "ccn": 1994, "ccun": 1994, "concrete": 1030, "energyCooling": 768, "energyHeating": 768,
@@ -50,7 +49,13 @@ chmod(exper_local_path + jar_name, 0o777)
 # generation of the batch script and the configuration files
 for neighborhood_size_id in neighborhood_size_ids:
     for scheme, scheme_alias in schemes.items():
+        if scheme == "nonlinearity" and neighborhood_size_id != "kna":
+            continue
+
         for dist_metric in dist_metrics:
+            if scheme == "nonlinearity" and dist_metric != "2.0":
+                continue
+
             # full identifier of each experiment
             exper_id = "-".join([str(exper_number), exper_date, "orig", scheme_alias, neighborhood_size_id,
                                  dist_metric])
@@ -114,7 +119,7 @@ for neighborhood_size_id in neighborhood_size_ids:
                 curr_child_file.write("experiment.data.test = " + original_datasets_server_path + dataset +
                                       "-test-#.csv\n")
 
-                assert neighborhood_size_id in ["kna", "k1", "k1pni", "k5pni"]
+                assert neighborhood_size_id in ["k1", "k2", "k5", "k9", "k1pni", "k5pni", "kna"]
 
                 # find the actual number of neighbors for each dataset
                 if neighborhood_size_id == "kna":
