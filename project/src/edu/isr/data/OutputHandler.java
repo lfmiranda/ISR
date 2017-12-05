@@ -85,12 +85,12 @@ public class OutputHandler {
 
     /**
      * Write the set of selected instances in the output file.
-     * @param selectedInst Array with the selected instances.
+     * @param instKept Array with the selected instances.
      * @param expId Identifier based on the names of the weighting function, neighborhood size, and the distance metric.
      * @param params Experiment parameters.
      * @throws IOException If the output file was not found or could not be written.
      */
-    static void writeInstances(Instance[] selectedInst, String expId, ParametersManager params, int foldId)
+    static void writeInstances(Instance[] instKept, String expId, ParametersManager params, int foldId)
             throws IOException {
         Path outPath = Paths.get(params.getOutPath() + expId + "/s" + params.getSelectionLevel());
 
@@ -106,7 +106,7 @@ public class OutputHandler {
 
         try (PrintWriter out = new PrintWriter(fileName, "UTF-8")) {
             // writes the weight values
-            for (Instance inst : selectedInst) {
+            for (Instance inst : instKept) {
                 for (Double inputAttrValue : inst.getInput()) {
                     out.print(inputAttrValue + ",");
                 }

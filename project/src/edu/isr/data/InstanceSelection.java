@@ -24,11 +24,16 @@ public class InstanceSelection {
      * @param params Experiment parameters.
      */
     private static void determineFinalRanks(Fold fold, ParametersManager params) {
-        for (int currRank = 1; currRank <= fold.getNumInst() - params.getNumNeighbors(); currRank++) {
+        for (int currRank = fold.getNumInst(); currRank >= 1; currRank--) {
             Instance instSmallestWeight = fold.getInstSmallestWeight(); // selects the next less important instance
 
             instSmallestWeight.setRank(currRank); // ranks the instance by its order of elimination
             instSmallestWeight.setWeight(Double.POSITIVE_INFINITY); // the instance will be disregarded from now
+
+            /* For instances with rank value smaller than the number of neighbors, the relative position in the ranking
+            is not relevant (and, by construction, impossible to determine). Therefore, only the first steps of the
+            ranking are performed for these instances. */
+            if (currRank <= params.getNumNeighbors()) continue;
 
             // updates the distances matrix, setting the distance to or from the ranked instance to infinite
             fold.updateDistMatrix(instSmallestWeight.getId());
@@ -46,22 +51,30 @@ public class InstanceSelection {
      * @param params Experiment parameters.
      * @throws IOException If the output file was not found or could not be written.
      */
-    private static void applySelection(Fold origFold, Fold fold, String expId, ParametersManager params) throws IOException {
-        int numSelectedInst = (int) Math.round(fold.getNumInst() * (100 - params.getSelectionLevel()) / 100);
-        Instance[] selectedInst = new Instance[numSelectedInst];
+    private static void applySelection(Fold origFold, Fold fold, String expId, ParametersManager params)
+            throws IOException {
+        int numInst = fold.getNumInst();
+        int numInstRemoved = (int) Math.round(params.getSelectionLevel() / 100 * numInst);
+        int numInstKept = numInst - numInstRemoved;
 
-        int count = 0;
-        for (int i = 0; i < fold.getNumInst(); i++) {
+        Instance[] instKept = new Instance[numInstKept];
+
+        int index = 0;
+        for (int i = 0; i < numInst; i++) {
             Instance currInst = fold.getInst(i);
 
-            if (currInst.getRank() <= numSelectedInst) {
-                selectedInst[count] = currInst;
-                count++;
+            if (currInst.getRank() <= numInstKept) {
+                instKept[index] = currInst;
+                index++;
             }
         }
 
-        assert count == numSelectedInst : "Something's wrong!";
+        System.out.println("Number of instances kept: " + numInstKept);
+        System.out.println("Number of instances removed: " + numInstRemoved);
+        System.out.println("Total number of instances: " + numInst + "\n");
 
-        OutputHandler.writeInstances(selectedInst, expId, params, fold.getFoldId());
+        assert index + numInstRemoved == numInst : "Something's wrong!";
+
+        OutputHandler.writeInstances(instKept, expId, params, fold.getFoldId());
     }
 }
