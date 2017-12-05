@@ -10,6 +10,11 @@ project.iml
 # Runnable files
 out
 
+# Output datasets
+datasets/3-24.10.2017
+datasets/4-21.11.2017
+datasets/is_test
+
 # Experiments folder
 experiments/
 
