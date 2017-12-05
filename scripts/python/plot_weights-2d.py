@@ -4,13 +4,10 @@ import matplotlib.pyplot as plt
 import os
 
 # experiments variables
-datasets = ["keijzer-8-train-0"]
+datasets = ["f7-train-0"]
 schemes = [
-    "proximity-x",
     "proximity-xy",
-    "proximity-x",
     "surrounding-xy",
-    "remoteness-x",
     "remoteness-xy",
     "nonlinearity",
 ]
@@ -21,7 +18,7 @@ nums_neighbors = ["k2"]
 base_dir = os.path.expanduser("~/Dropbox/my_files/research/ISR/")
 data_folder = base_dir + "datasets/original/"
 weights_folder = base_dir + "datasets/3-24.10.2017/original/"
-plots_folder = base_dir + "plots/15-24.10.2017/"
+plots_folder = base_dir + "plots/19-04.12.2017/"
 
 if not os.path.exists(plots_folder):
     os.makedirs(plots_folder)
@@ -89,22 +86,10 @@ for dataset in datasets:
                            fontsize=20)
 
                 # black rings:
-                # plt.scatter(X, Y, s=areas, facecolors="none", edgecolors="black")
+                plt.scatter(X, Y, s=areas, facecolors="none", edgecolors="black")
 
-                # blue circles:
-                plt.scatter(X, Y, s=areas, label="1", c="#1F77B4", facecolors="none", alpha=0.4)
-
-                # plot the weights of each instance
-                for label, x, y, area in zip(labels, data[:, 0], data[:, 1], areas):
-                    plt.annotate(
-                        str(label).replace("0.", "."),
-                        color="#1F77B4",
-                        xy=(x, y), xytext=(0, 5 + math.sqrt(area)),
-                        textcoords="offset points", ha="center", va="center", fontsize=6,
-                        arrowprops=dict(arrowstyle='-', color="#1F77B4", connectionstyle='arc3,rad=0'))
-
-                plt.xlabel(r"$input$", fontsize=20)
-                plt.ylabel(r"$output$", fontsize=20)
+                plt.xlabel(r"x", fontsize=20)
+                plt.ylabel(r"y", fontsize=20)
 
                 plt.savefig(plots_folder + "-".join([dataset, scheme, num_neighbors, dist_metric]) + ".pdf",
                             bbox_inches="tight")

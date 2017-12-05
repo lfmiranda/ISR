@@ -12,7 +12,7 @@ datasets = [
 # local paths
 base_dir = os.path.expanduser("~/Dropbox/my_files/research/ISR/")
 data_folder = base_dir + "datasets/original/"
-plots_folder = base_dir + "plots/14-17.10.2017/"
+plots_folder = base_dir + "plots/19-04.12.2017/"
 
 if not os.path.exists(plots_folder):
     os.makedirs(plots_folder)
@@ -52,7 +52,7 @@ for dataset in datasets:
 
     ax.set_xlabel(r"$x1$", fontsize=20)
     ax.set_ylabel(r"$x2$", fontsize=20)
-    ax.set_zlabel(r"$output$", fontsize=20)
+    ax.set_zlabel(r"$y$", fontsize=20)
 
     plt.savefig(plots_folder + dataset + ".pdf", bbox_inches="tight")
     plt.close()

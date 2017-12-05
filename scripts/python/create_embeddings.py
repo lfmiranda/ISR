@@ -8,12 +8,24 @@ from sklearn import decomposition, manifold
 base_dir = os.path.expanduser("~/Dropbox/my_files/research/ISR/")
 data_folder = base_dir + "datasets/original/"
 outputs_folder = base_dir + "datasets/1-05.06.2017/"
-plots_folder = base_dir + "plots/1-05.06.2017/"
+plots_folder = base_dir + "plots/19-04.12.2017/"
 
 # The original "ppb" dataset cannot be used, as it contains attributes for which all values are equals to zero (which
 # causes a "division by zero" error during the normalization step).
-datasets = ["airfoil", "concrete", "ccn", "ccun", "energyCooling", "energyHeating", "parkinsons", "ppb-wth0s",
-            "towerData", "wineRed", "wineWhite", "yacht"]
+datasets = [
+    # "airfoil",
+    # "ccn",
+    # "concrete",
+    # "ccun",
+    # "energyCooling",
+    "energyHeating",
+    # "parkinsons",
+    # "ppb-wth0s",
+    # "towerData",
+    # "wineRed",
+    # "wineWhite",
+    # "yacht",
+]
 num_neighbors = 5
 
 
@@ -86,7 +98,10 @@ def plot(input_file, Y):
         y_max = np.max(Y, 0)
         Y_norm = (Y - y_min) / (y_max - y_min)
 
-        plt.figure(figsize=(16, 8))
+        plt.figure(figsize=(16, 10))
+
+        plt.rc('text', usetex=True)
+        plt.rc('font', family='serif')
 
         ax = plt.subplot(111)
         ax.spines["top"].set_visible(False)
@@ -94,14 +109,37 @@ def plot(input_file, Y):
         ax.get_xaxis().tick_bottom()
         ax.get_yaxis().tick_left()
 
+        x1_max = max(X[:, 0])
+        x1_min = min(X[:, 0])
+        x2_max = max(X[:, 1])
+        x2_min = min(X[:, 1])
+
+        x1_range = x1_max - x1_min
+        x2_range = x2_max - x2_min
+
+        x1_step = x1_range / 4
+        x2_step = x2_range / 4
+
+        # customise the size of axis ticks
+        plt.xticks(np.arange(x1_min, x1_max + x1_step, x1_step),
+                   [str(r"%.1f" % x) for x in np.arange(x1_min, x1_max + x1_step, x1_step)], fontsize=20)
+
+        plt.yticks(np.arange(x2_min, x2_max + x2_step, x2_step),
+                   [str(r"%.1f" % x) for x in np.arange(x2_min, x2_max + x2_step, x2_step)], fontsize=20)
+
         for i in range(X.shape[0]):
             plt.scatter(X[i, 0], X[i, 1], color=plt.get_cmap("coolwarm")(Y_norm[i]))
 
         color_map = cm.ScalarMappable(cmap=plt.get_cmap("coolwarm"))
         color_map.set_array(Y)
 
-        plt.colorbar(color_map)
-        plt.title(input_file)
+        cb = plt.colorbar(color_map)
+        cb.ax.tick_params(labelsize=20)
+        cb.ax.set_title(r"$y$", fontsize=20)
+
+        plt.xlabel(r"$component\ 1$", fontsize=20)
+        plt.ylabel(r"$component\ 2$", fontsize=20)
+
         plt.savefig(curr_folder + "/" + input_file + ".pdf", bbox_inches="tight")
         plt.close()
 

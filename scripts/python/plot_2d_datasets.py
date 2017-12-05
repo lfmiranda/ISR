@@ -4,12 +4,13 @@ import os
 
 datasets = [
     "f7-train-0",
+    "salustowicz1d-skipped_pts-train-0"
 ]
 
 # local paths
 base_dir = os.path.expanduser("~/Dropbox/my_files/research/ISR/")
 data_folder = base_dir + "datasets/original/"
-plots_folder = base_dir + "plots/14-17.10.2017/"
+plots_folder = base_dir + "plots/19-04.12.2017/"
 
 if not os.path.exists(plots_folder):
     os.makedirs(plots_folder)
@@ -56,11 +57,14 @@ for dataset in datasets:
                [str(r"%.1f" % y) for y in np.arange(Y_min, Y_max + Y_step, Y_step)],
                fontsize=20)
 
-    #plt.scatter(X, Y, s=70, facecolors="none", edgecolors="black")
-    plt.scatter(X, Y, s=50, c="#1F77B4", facecolors="none", alpha=0.4)
+    # black rings:
+    plt.scatter(X, Y, s=70, facecolors="none", edgecolors="black")
 
-    plt.xlabel(r"$input$", fontsize=20)
-    plt.ylabel(r"$output$", fontsize=20)
+    # blue circles:
+    # plt.scatter(X, Y, s=50, c="#1F77B4", facecolors="none", alpha=0.4)
+
+    plt.xlabel(r"$x$", fontsize=20)
+    plt.ylabel(r"$y$", fontsize=20)
 
     plt.savefig(plots_folder + dataset + ".pdf", bbox_inches="tight")
     plt.close()
