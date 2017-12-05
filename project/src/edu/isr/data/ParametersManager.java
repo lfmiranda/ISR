@@ -349,7 +349,7 @@ public class ParametersManager {
      * should not be performed.
      * @return The selection level.
      */
-    public double getSelectionLevel() {
+    double getSelectionLevel() {
         return selectionLevel;
     }
 

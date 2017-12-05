@@ -13,11 +13,11 @@ class Instance {
     private final double[] input;
     private final double output;
 
-    private List<Instance> neighbors  = new ArrayList<>();
-    private List<Instance> associates = new ArrayList<>();
+    private final List<Instance> neighbors  = new ArrayList<>();
+    private final List<Instance> associates = new ArrayList<>();
 
     private double weight;
-    private double rank;
+    private int rank;
 
     /**
      * Creates a new {@code Instance}.
@@ -47,6 +47,14 @@ class Instance {
      */
     void addAssociate(Instance associate) {
         associates.add(associate);
+    }
+
+    /**
+     * Returns an unique integer identifying each instance.
+     * @return The instance id.
+     */
+    int getId() {
+        return id;
     }
 
     /**
@@ -82,6 +90,14 @@ class Instance {
     }
 
     /**
+     * Returns a list of instances representing this instance associates.
+     * @return The instance associates.
+     */
+    List<Instance> getAssociates() {
+        return associates;
+    }
+
+    /**
      * Returns a number representing the instance weight.
      * @return The instance weight.
      */
@@ -98,10 +114,27 @@ class Instance {
     }
 
     /**
+     * Returns the rank of the instance, which represents its order of elimination.
+     * @return The rank.
+     */
+    int getRank() {
+        return rank;
+    }
+
+    /**
      * Sets the instance rank.
      * @param rank The rank value.
      */
-    void setRank(double rank) {
+    void setRank(int rank) {
         this.rank = rank;
+    }
+
+    /**
+     * Resets the neighbors list and removes the selected instance from the list of associates.
+     * @param instSmallestWeight The instance selected as the next one to be ranked.
+     */
+    void clear(Instance instSmallestWeight) {
+        neighbors.clear();
+        associates.remove(instSmallestWeight);
     }
 }

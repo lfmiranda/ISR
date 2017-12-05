@@ -10,9 +10,9 @@ import java.util.stream.DoubleStream;
 /**
  * Responsible for assigning the initial weights to the instances.
  */
-public class InstancesWeighting {
+public class InstanceWeighting {
     /**
-     *
+     * Assigns an initial rank for each instance.
      * @param fold Set of instances to be weighted.
      * @param expId Identifier based on the names of the weighting function, neighborhood size, and the distance metric.
      * @param params Experiment parameters.
@@ -31,28 +31,25 @@ public class InstancesWeighting {
         if (functionName.equals("remoteness-x") || functionName.equals("remoteness-xy")) {
             // compound cases: two weighting functions will be used.
             weights = getCompoundWeights(fold, functionName, params.getDistMetric(), params.getCombMethod());
-
-            // for the remoteness function, the rank value is always equal to the initial weight value
-            for (int i = 0; i < fold.getNumInst(); i++)
-                fold.getInst(i).setRank(weights[i]);
         } else {
             // simple cases: only one weighting function will be used.
             weights = getWeights(fold, functionName, params.getDistMetric());
-
-            /* Uses the weights to find out the rank value of each instance and then assigns the ranks to the
-            corresponding instances. */
-            int[] ranks = getRanks(weights);
-            for (int i = 0; i < fold.getNumInst(); i++)
-                fold.getInst(i).setRank(ranks[i]);
         }
 
-        normalizeWeights(weights);
+        //normalizeWeights(weights);
         setWeights(fold, weights);
         OutputHandler.writeWeights(weights, expId, params, fold.getFoldId()); // saves the weights in a file
+
+        //todo: analyse if this is really necessary
+        /* Uses the weights to find out the rank value of each instance and then assigns the ranks to the
+        corresponding instances. */
+        int[] ranks = getRanks(weights);
+        for (int i = 0; i < fold.getNumInst(); i++)
+            fold.getInst(i).setRank(ranks[i]);
     }
 
     /**
-     *
+     * Weighs the instances using both proximity and surrounding weighting functions
      * @param fold Set of instances to be weighted.
      * @param functionName Weighting function name.
      * @param distMetric Parameter of the parameterized Minkowski metric. For example, {@code distMetric} = 1 means
@@ -60,16 +57,8 @@ public class InstancesWeighting {
      * @return An array with the compound weights of all instances.
      */
     private static double[] getCompoundWeights(Fold fold, String functionName, double distMetric, String combMethod) {
-        String proxFunction;
-        String surrFunction;
-
-        if (functionName.equals("remoteness-x")) {
-            proxFunction = "proximity-x";
-            surrFunction = "surrounding-x";
-        } else {
-            proxFunction = "proximity-xy";
-            surrFunction = "surrounding-xy";
-        }
+        String proxFunction = functionName.equals("remoteness-x") ? "proximity-x" : "proximity-xy";
+        String surrFunction = functionName.equals("remoteness-x") ? "surrounding-x" : "surrounding-xy";
 
         double[] proxWeights = getWeights(fold, proxFunction, distMetric);
         double[] surrWeights = getWeights(fold, surrFunction, distMetric);
@@ -92,7 +81,7 @@ public class InstancesWeighting {
     }
 
     /**
-     *
+     * Weighs the instances using one of the weighting function
      * @param fold Set of instances to be weighted.
      * @param functionName Weighting function name.
      * @param distMetric Parameter of the parameterized Minkowski metric. For example, {@code distMetric} = 1 means
@@ -151,5 +140,55 @@ public class InstancesWeighting {
             weights[i] /= sumWeights;
 
         assert Math.round(DoubleStream.of(weights).sum()) == 1 : "the normalized weights should add up to 1.";
+    }
+
+    /**
+     * Updates the weights of the instance that had the eliminated instance among its nearest neighbors.
+     * @param fold The fold with all training instances.
+     * @param instSmallestWeight The instance that had the eliminated instance among its nearest neighbors.
+     * @param params Experiment parameters.
+     */
+    static void updateAssociatesWeights(Fold fold, Instance instSmallestWeight, ParametersManager params) {
+        for (Instance associate : instSmallestWeight.getAssociates()) {
+            associate.clear(instSmallestWeight);
+            fold.findNeighbors(associate.getId(), params.getNumNeighbors());
+            InstanceWeighting.updateInstWeights(fold, associate, params);
+        }
+    }
+
+    /**
+     * Updates the weight of an specific instance.
+     * @param fold Full set of instances. Necessary for calculating instance ranks when using the remoteness function.
+     * @param inst The instance for which we want to update the weights.
+     * @param params Experiment parameters.
+     */
+    private static void updateInstWeights(Fold fold, Instance inst, ParametersManager params) {
+        String functionName = params.getWeightingFunction();
+        Double distMetric = params.getDistMetric();
+        String combMethod = params.getCombMethod();
+
+        // true for functions other than remoteness-x/xy, plus remoteness-x/xy with cardinal combination strategy
+        if (!(functionName.equals("remoteness-x") || functionName.equals("remoteness-xy")) || combMethod.equals("cardinal")) {
+            double newWeight;
+
+            if (!(functionName.equals("remoteness-x") || functionName.equals("remoteness-xy"))) {
+                newWeight = WeightingFunctions.applyWeightingFunction(inst, functionName, distMetric);
+            } else {
+                String proxFunction = functionName.equals("remoteness-x") ? "proximity-x" : "proximity-xy";
+                String surrFunction = functionName.equals("remoteness-x") ? "surrounding-x" : "surrounding-xy";
+
+                double proxWeight = WeightingFunctions.applyWeightingFunction(inst, proxFunction, distMetric);
+                double surrWeight = WeightingFunctions.applyWeightingFunction(inst, surrFunction, distMetric);
+
+                newWeight = (proxWeight + surrWeight) / 2;
+            }
+
+            inst.setWeight(newWeight);
+        /* True for remoteness-x/xy with ordinal combination strategy. In this case it is necessary to weigh the entire
+        fold again. */
+        } else {
+            double[] newWeights = getCompoundWeights(fold, functionName, distMetric, combMethod);
+            setWeights(fold, newWeights);
+        }
     }
 }

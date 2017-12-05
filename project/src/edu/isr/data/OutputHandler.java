@@ -82,4 +82,39 @@ public class OutputHandler {
             throw new IOException("Error while writing the weights.");
         }
     }
+
+    /**
+     * Write the set of selected instances in the output file.
+     * @param selectedInst Array with the selected instances.
+     * @param expId Identifier based on the names of the weighting function, neighborhood size, and the distance metric.
+     * @param params Experiment parameters.
+     * @throws IOException If the output file was not found or could not be written.
+     */
+    static void writeInstances(Instance[] selectedInst, String expId, ParametersManager params, int foldId)
+            throws IOException {
+        Path outPath = Paths.get(params.getOutPath() + expId + "/s" + params.getSelectionLevel());
+
+        try {
+            // creates the folder where the weights file should be written if it does not exist yet
+            if (!Files.exists(outPath))
+                Files.createDirectories(outPath);
+        } catch (IOException e) {
+            throw new IOException("Error while creating the folder where the instances should be written.");
+        }
+
+        String fileName = outPath + "/" + params.getDatasetName() + "-" + foldId + ".csv";
+
+        try (PrintWriter out = new PrintWriter(fileName, "UTF-8")) {
+            // writes the weight values
+            for (Instance inst : selectedInst) {
+                for (Double inputAttrValue : inst.getInput()) {
+                    out.print(inputAttrValue + ",");
+                }
+
+                out.println(inst.getOutput());
+            }
+        } catch (IOException e) {
+            throw new IOException("Error while writing the weights.");
+        }
+    }
 }

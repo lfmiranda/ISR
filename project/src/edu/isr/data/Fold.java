@@ -1,6 +1,7 @@
 package edu.isr.data;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,10 @@ public class Fold {
 
     private double[][] distBetweenInst; // distances between the instances (always measured in the input space)
 
+    /**
+     * Builds an empty fold.
+     * @param foldId The fold identifier.
+     */
     public Fold(int foldId) {
         this.foldId = foldId;
     }
@@ -76,12 +81,33 @@ public class Fold {
                 continue;
 
             getInst(instId).addNeighbor(getInst(nextNeighborId));
-            getInst(nextNeighborId).addAssociate(getInst(instId));
+
+            if (getInst(nextNeighborId).getAssociates().contains(getInst(instId)))
+                getInst(nextNeighborId).addAssociate(getInst(instId));
 
             numNeighborsAdded++;
         }
 
         assert getInst(instId).getNeighbors().size() == numNeighbors : "incorrect number of neighbors.";
+    }
+
+    /** The instance with the smallest weight will be the next one to be ranked.
+     * @return The instance with the smallest weight
+     */
+    Instance getInstSmallestWeight() {
+        double smallestWeight = Double.POSITIVE_INFINITY;
+        Instance instSmallestWeight = null;
+
+        for (Instance inst : instances) {
+            double weightCurrInst = inst.getWeight();
+
+            if (weightCurrInst < smallestWeight) {
+                smallestWeight = weightCurrInst;
+                instSmallestWeight = inst;
+            }
+        }
+
+        return instSmallestWeight;
     }
 
     /**
@@ -126,5 +152,19 @@ public class Fold {
      */
     void setNumAttr(int numAttr) {
         this.numAttr = numAttr;
+    }
+
+    /**
+     * During the selection process, when an instance gets its rank, it should be disregarded from that point forward.
+     * This method updates the matrix distBetweenInst, setting the distance to or from the disregarded instance to
+     * infinite.
+     * @param instId The id of the instance that should be disregarded.
+     */
+    void updateDistMatrix(int instId) {
+        Arrays.fill(distBetweenInst[instId], Double.POSITIVE_INFINITY);
+
+        for (int i = 0; i < numInst; i++) {
+            distBetweenInst[i][instId] = Double.POSITIVE_INFINITY;
+        }
     }
 }

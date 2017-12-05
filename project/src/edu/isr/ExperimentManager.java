@@ -2,7 +2,8 @@ package edu.isr;
 
 import edu.isr.data.Fold;
 import edu.isr.data.InputHandler;
-import edu.isr.data.InstancesWeighting;
+import edu.isr.data.InstanceSelection;
+import edu.isr.data.InstanceWeighting;
 import edu.isr.data.OutputHandler;
 import edu.isr.data.ParametersManager;
 
@@ -37,11 +38,12 @@ class ExperimentManager {
      * Runs the experiment.
      * @throws IOException If some error occurs while creating the output files.
      */
-    void runExperiment() throws Exception {
+    void runExperiment() throws IOException {
         ArrayList<Fold> trFolds = InputHandler.readTrFolds(params, false);
 
         for (Fold currTrFold : trFolds) {
-            InstancesWeighting.rankInstances(currTrFold, expId, params);
+            InstanceWeighting.rankInstances(currTrFold, expId, params);
+            InstanceSelection.selectInstances(currTrFold, expId, params);
         }
     }
 }

@@ -15,7 +15,7 @@ public class InputHandler {
      * @param readOrigFolds Flag indicating if the data should be read from the original folds or from the folds created
      *                      during the embedding generation step.
      * @return A set of folds.
-     * @throws FileNotFoundException If a fold is not found or can't be read.
+     * @throws FileNotFoundException If a fold was not found or could not be read.
      */
     public static ArrayList<Fold> readTrFolds(ParametersManager params, boolean readOrigFolds)
             throws FileNotFoundException {
