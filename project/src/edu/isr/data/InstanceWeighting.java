@@ -150,7 +150,9 @@ public class InstanceWeighting {
      */
     static void updateAssociatesWeights(Fold fold, Instance instSmallestWeight, ParametersManager params) {
         for (Instance associate : instSmallestWeight.getAssociates()) {
-            associate.clear(instSmallestWeight);
+            fold.getInst(associate.getId()).clearNeighborsList();
+            fold.getInst(associate.getId()).clearAssociatesList();
+
             fold.findNeighbors(associate.getId(), params.getNumNeighbors());
             InstanceWeighting.updateInstWeights(fold, associate, params);
         }

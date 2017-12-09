@@ -1,0 +1,26 @@
+# Path to the folder containing the original folds.
+original.folds.path = ~/Dropbox/my_files/research/ISR/datasets/original/
+
+# Path to the folder containing the input folds. It is the same as the "original.folds.path" parameter if no dimensionality reduction method was applied to the datasets.
+input.path = ~/Dropbox/my_files/research/ISR/datasets/original/
+
+# Path to the output folder.
+output.path = ~/Dropbox/my_files/research/ISR/datasets/13-08.12.2017/
+
+# Dataset name.
+dataset.name = kotanchek-actually_test-train
+
+# Weighting function.
+weighting.function = nonlinearity
+
+# Percentage of instances that should be removed.
+selection.level = 25
+
+# Distance metric.
+distance.metric = 2
+
+# Number of instances taken as neighbors.
+number.neighbors = 4
+
+# Method use to combine weights when using the remoteness weighting function.
+combination.method = cardinal

@@ -30,8 +30,11 @@ public class InstanceSelection {
             instSmallestWeight.setRank(currRank); // ranks the instance by its order of elimination
             instSmallestWeight.setWeight(Double.POSITIVE_INFINITY); // the instance will be disregarded from now
 
+            // removes the traces of the ranked instance out of the other instances
+            fold.clearInstTraces(instSmallestWeight);
+
             /* For instances with rank value smaller than the number of neighbors, the relative position in the ranking
-            is not relevant (and, by construction, impossible to determine). Therefore, only the first steps of the
+            is irrelevant (and, by construction, impossible to determine). Therefore, only the first steps of the
             ranking are performed for these instances. */
             if (currRank <= params.getNumNeighbors()) continue;
 
@@ -73,7 +76,9 @@ public class InstanceSelection {
         System.out.println("Number of instances removed: " + numInstRemoved);
         System.out.println("Total number of instances: " + numInst + "\n");
 
-        assert index + numInstRemoved == numInst : "Something's wrong!";
+        assert index + numInstRemoved == numInst : "The index at the end of the for loop responsible for selecting" +
+                " instances (" + index + ") should be the same as the number of instances that should be kept (" +
+                numInstKept + ").";
 
         OutputHandler.writeInstances(instKept, expId, params, fold.getFoldId());
     }

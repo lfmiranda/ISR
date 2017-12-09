@@ -130,11 +130,28 @@ class Instance {
     }
 
     /**
-     * Resets the neighbors list and removes the selected instance from the list of associates.
-     * @param instSmallestWeight The instance selected as the next one to be ranked.
+     * Removes an instance from the associates list of this instance
+     * @param inst The instance to be removed
      */
-    void clear(Instance instSmallestWeight) {
+    void removeAssociate(Instance inst) {
+        associates.remove(inst);
+    }
+
+    /**
+     * Removes an instance from the neighbors list of this instance
+     * @param inst The instance to be removed
+     */
+    void removeNeighbor(Instance inst) {
+        neighbors.remove(inst);
+    }
+
+    // clears neighbors list
+    void clearNeighborsList() {
         neighbors.clear();
-        associates.remove(instSmallestWeight);
+    }
+
+    // clears associates list
+    void clearAssociatesList() {
+        associates.clear();
     }
 }

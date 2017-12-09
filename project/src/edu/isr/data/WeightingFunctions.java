@@ -1,11 +1,14 @@
 package edu.isr.data;
 
+import org.apache.commons.math3.linear.SingularMatrixException;
 import org.apache.commons.math3.stat.regression.OLSMultipleLinearRegression;
 
 /**
  * Contains the weighting functions. Each function defines the importance of each instance based on a distance notion.
  */
 class WeightingFunctions {
+    private static int counter = 0;
+
     /**
      * Weights an instance using one of the weighting functions (it does not change the instance's weight value yet.
      * Because of the way the remoteness weight is calculated, that has to be done latter).
@@ -111,7 +114,18 @@ class WeightingFunctions {
         int numDimensions = inst.getAllAttrs().length;
         double[] hyperPlane = new double[numDimensions + 1];
 
-        double[] hyperPlaneParams = regression.estimateRegressionParameters();
+        double[] hyperPlaneParams;
+        try {
+            hyperPlaneParams = regression.estimateRegressionParameters();
+        } catch (SingularMatrixException e) {
+            /* When this exception occurs, there are multiple planes that can pass across all the points. In the
+            specific context of the nonlinearity weighting function, a singular matrix exception indicates that the
+            instance and all its neighbors are aligned with each other. In other words, with a single straight line, we
+            can connect all of them. This situation implies that the distance between the instance and the plane (any of them)
+            that pass through it and its neighbors is zero. Therefore, its weight is also 0. */
+            return 0;
+        }
+
         System.arraycopy(hyperPlaneParams, 1, hyperPlane, 0, numDimensions - 1);
         hyperPlane[numDimensions - 1] = -1;
         hyperPlane[numDimensions] = hyperPlaneParams[0];

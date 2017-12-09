@@ -41,7 +41,10 @@ class ExperimentManager {
     void runExperiment() throws IOException {
         ArrayList<Fold> trFolds = InputHandler.readTrFolds(params, false);
 
+        assert trFolds.size() > 0 : "input folds not found.";
+
         for (Fold currTrFold : trFolds) {
+            System.out.println("Working on fold " + currTrFold.getFoldId() + "...");
             InstanceWeighting.rankInstances(currTrFold, expId, params);
             InstanceSelection.selectInstances(currTrFold, expId, params);
         }

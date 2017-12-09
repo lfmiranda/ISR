@@ -82,7 +82,7 @@ public class Fold {
 
             getInst(instId).addNeighbor(getInst(nextNeighborId));
 
-            if (getInst(nextNeighborId).getAssociates().contains(getInst(instId)))
+            if (!getInst(nextNeighborId).getAssociates().contains(getInst(instId)))
                 getInst(nextNeighborId).addAssociate(getInst(instId));
 
             numNeighborsAdded++;
@@ -114,7 +114,7 @@ public class Fold {
      * Gets the folder identifier.
      * @return An integer corresponding to the fold identifier.
      */
-    int getFoldId() {
+    public int getFoldId() {
         return foldId;
     }
 
@@ -166,5 +166,21 @@ public class Fold {
         for (int i = 0; i < numInst; i++) {
             distBetweenInst[i][instId] = Double.POSITIVE_INFINITY;
         }
+    }
+
+    /**
+     * When an instance is ranked, it is necessary to remove it from the neighbors list of its associates and from the
+     * associates list of its neighbors. Not doing so would cause a future weight reassignment and therefore a new rank
+     * could be assigned to the instance.
+     * @param inst The instance for which we want to cleat the traces.
+     */
+    void clearInstTraces(Instance inst) {
+        // removes the instance from the associates list of its neighbors
+        for (Instance neighbor : inst.getNeighbors())
+            neighbor.removeAssociate(inst);
+
+        // removes the instance from the neighbors list of its associates
+        for (Instance associate : inst.getAssociates())
+            associate.removeNeighbor(inst);
     }
 }
