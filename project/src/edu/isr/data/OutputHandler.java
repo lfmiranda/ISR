@@ -22,7 +22,12 @@ public class OutputHandler {
         System.out.println("  Output path: " + params.getOutPath());
         System.out.println("  Dataset name: " + params.getDatasetName());
         System.out.println("  Weighting scheme: " + params.getWeightingFunction());
-        System.out.println("  Selection level: " + params.getSelectionLevel());
+
+        System.out.print("  Selection levels: ");
+        for (double selectionLevel : params.getSelectionLevels())
+            System.out.print(" " + selectionLevel);
+        System.out.println();
+
         System.out.println("  Distance metric: " + params.getDistMetric());
         System.out.println("  Number of neighbors: " + params.getNumNeighbors());
         System.out.println("  Combination method: " + params.getCombMethod() + "\n");
@@ -35,7 +40,7 @@ public class OutputHandler {
      * @throws IOException If some error occurs while creating the log file.
      */
     public static void logLoadedParameters(String expId, ParametersManager params) throws IOException {
-        Path outPath = Paths.get(params.getOutPath() + expId + "/logs/" + params.getSelectionLevel());
+        Path outPath = Paths.get(params.getOutPath() + expId + "/logs/");
 
         try {
             // creates the folder where the logs should be written if it does not exist yet
@@ -88,11 +93,12 @@ public class OutputHandler {
      * @param instKept Array with the selected instances.
      * @param expId Identifier based on the names of the weighting function, neighborhood size, and the distance metric.
      * @param params Experiment parameters.
+     * @param selectionLevel Current selection level.
      * @throws IOException If the output file was not found or could not be written.
      */
-    static void writeInstances(Instance[] instKept, String expId, ParametersManager params, int foldId)
-            throws IOException {
-        Path outPath = Paths.get(params.getOutPath() + expId + "/s" + params.getSelectionLevel());
+    static void writeInstances(Instance[] instKept, String expId, ParametersManager params, int foldId,
+                               double selectionLevel) throws IOException {
+        Path outPath = Paths.get(params.getOutPath() + expId + "/s" + selectionLevel);
 
         try {
             // creates the folder where the weights file should be written if it does not exist yet

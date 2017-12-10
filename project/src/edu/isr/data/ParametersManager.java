@@ -29,7 +29,7 @@ public class ParametersManager {
     private String outPath;
     private String datasetName;
     private String weightingFunction;
-    private double selectionLevel;
+    private double[] selectionLevels;
     private double distMetric;
     private int numNeighbors;
     private String combMethod;
@@ -112,7 +112,8 @@ public class ParametersManager {
         OUTPUT_PATH("output.path", "Path to the output folder."),
         DATASET_NAME("dataset.name", "Dataset name."),
         WEIGHTING_FUNCTION("weighting.function", "Weighting function."),
-        SELECTION_LEVEL("selection.level", "Percentage of instances that should be removed."),
+        SELECTION_LEVELS("selection.levels", "Array with the percentages of instances that should be removed. Each" +
+                "value corresponds to a set of output files."),
         DISTANCE_METRIC("distance.metric", "Distance metric."),
         NUM_NEIGHBORS("number.neighbors", "Number of instances taken as neighbors."),
         COMB_METHOD("combination.method", "Method use to combine weights when using the remoteness weighting function.");
@@ -187,7 +188,7 @@ public class ParametersManager {
         outPath = getStringParameter(ParameterList.OUTPUT_PATH, true);
         datasetName = getStringParameter(ParameterList.DATASET_NAME, false);
         weightingFunction = getStringParameter(ParameterList.WEIGHTING_FUNCTION, false);
-        selectionLevel = getDoubleParameter(ParameterList.SELECTION_LEVEL);
+        selectionLevels = getDoubleArrayParameter(ParameterList.SELECTION_LEVELS);
         distMetric = getDoubleParameter(ParameterList.DISTANCE_METRIC);
         numNeighbors = getIntegerParameter(ParameterList.NUM_NEIGHBORS);
         combMethod = getStringParameter(ParameterList.COMB_METHOD, false);
@@ -204,7 +205,8 @@ public class ParametersManager {
                 weightingFunction.equals("remoteness-x") || weightingFunction.equals("remoteness-xy") ||
                 weightingFunction.equals("nonlinearity") : "invalid weighting function.";
 
-        assert (selectionLevel >= 0) && (selectionLevel <= 100) : "invalid selection level.";
+        for (double selectionLevel : selectionLevels)
+            assert (selectionLevel >= 0) && (selectionLevel <= 100) : "invalid selection level.";
 
         assert (combMethod.equals("cardinal") || combMethod.equals("ordinal")) : "invalid combination method.";
     }
@@ -236,7 +238,7 @@ public class ParametersManager {
     }
 
     /**
-     * Loads an double parameter from the parameter file.
+     * Loads a double parameter from the parameter file.
      * @param key The name of the parameter.
      * @return The parameter loaded from the parameter file.
      * @throws MissingOptionException If the parameter is mandatory and is not present in any of the parameter files.
@@ -254,6 +256,38 @@ public class ParametersManager {
 
             // stores the value in the log file
             loadedParametersLog.append(key.name).append(" = ").append(parameterValue).append("\n");
+
+            return parameterValue;
+        } catch (NumberFormatException e) {
+            throw new NumberFormatException("The parameter \"" + key.name + "\" could not be converted to double.");
+        }
+    }
+
+    /**
+     * Loads a double array parameter from the parameter file.
+     * @param key The name of the parameter.
+     * @return The parameter loaded from the parameter file.
+     * @throws MissingOptionException If the parameter is mandatory and is not present in any of the parameter files.
+     * @throws NumberFormatException If the loaded value is actually a string.
+     */
+    private double[] getDoubleArrayParameter(ParameterList key) throws MissingOptionException {
+        boolean keyPresent = loadedParameters.containsKey(key.name);
+
+        // so far all double parameters are mandatory, so an exception is thrown if any of them are not present
+        if (!keyPresent) throw new MissingOptionException("The parameter \"" + key.name + "\" was not found.");
+
+        try {
+            String loadedParameter = loadedParameters.getProperty(key.name).replaceAll("\\s", "");
+            int numSelectionLevels = loadedParameter.split(",").length;
+
+            double[] parameterValue = new double[numSelectionLevels];
+
+            // gets the parameter values
+            for (int i = 0; i < numSelectionLevels; i++)
+                parameterValue[i] = Double.parseDouble(loadedParameter.split(",")[i]);
+
+            // stores the value in the log file
+            loadedParametersLog.append(key.name).append(" = ").append(loadedParameter).append("\n");
 
             return parameterValue;
         } catch (NumberFormatException e) {
@@ -345,12 +379,12 @@ public class ParametersManager {
     }
 
     /**
-     * Returns the percentage of instances that should be removed. A value 0 means that the instance selection step
-     * should not be performed.
-     * @return The selection level.
+     * Returns the array with the percentages of instances that should be removed. A value 0 means that the instance
+     * selection step should not be performed.
+     * @return The array containing all selection levels.
      */
-    double getSelectionLevel() {
-        return selectionLevel;
+    public double[] getSelectionLevels() {
+        return selectionLevels;
     }
 
     /**

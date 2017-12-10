@@ -15,7 +15,9 @@ public class InstanceSelection {
      */
     public static void selectInstances(Fold fold, String expId, ParametersManager params) throws IOException {
         determineFinalRanks(fold, params);
-        applySelection(fold, fold, expId, params);
+
+        for (double selectionLevel : params.getSelectionLevels())
+            applySelection(fold, fold, expId, params, selectionLevel);
     }
 
     /**
@@ -52,12 +54,13 @@ public class InstanceSelection {
      * @param fold The fold in which the selecting will be based.
      * @param expId Identifier based on the names of the weighting function, neighborhood size, and the distance metric.
      * @param params Experiment parameters.
+     * @param selectionLevel Current selection level.
      * @throws IOException If the output file was not found or could not be written.
      */
-    private static void applySelection(Fold origFold, Fold fold, String expId, ParametersManager params)
-            throws IOException {
+    private static void applySelection(Fold origFold, Fold fold, String expId, ParametersManager params,
+                                       double selectionLevel) throws IOException {
         int numInst = fold.getNumInst();
-        int numInstRemoved = (int) Math.round(params.getSelectionLevel() / 100 * numInst);
+        int numInstRemoved = (int) Math.round(selectionLevel / 100 * numInst);
         int numInstKept = numInst - numInstRemoved;
 
         Instance[] instKept = new Instance[numInstKept];
@@ -72,14 +75,14 @@ public class InstanceSelection {
             }
         }
 
-        System.out.println("Number of instances kept: " + numInstKept);
-        System.out.println("Number of instances removed: " + numInstRemoved);
-        System.out.println("Total number of instances: " + numInst + "\n");
+        System.out.println("  Number of instances kept: " + numInstKept);
+        System.out.println("  Number of instances removed: " + numInstRemoved);
+        System.out.println("  Total number of instances: " + numInst + "\n");
 
         assert index + numInstRemoved == numInst : "The index at the end of the for loop responsible for selecting" +
                 " instances (" + index + ") should be the same as the number of instances that should be kept (" +
                 numInstKept + ").";
 
-        OutputHandler.writeInstances(instKept, expId, params, fold.getFoldId());
+        OutputHandler.writeInstances(instKept, expId, params, fold.getFoldId(), selectionLevel);
     }
 }

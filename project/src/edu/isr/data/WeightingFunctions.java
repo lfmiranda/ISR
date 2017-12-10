@@ -7,8 +7,6 @@ import org.apache.commons.math3.stat.regression.OLSMultipleLinearRegression;
  * Contains the weighting functions. Each function defines the importance of each instance based on a distance notion.
  */
 class WeightingFunctions {
-    private static int counter = 0;
-
     /**
      * Weights an instance using one of the weighting functions (it does not change the instance's weight value yet.
      * Because of the way the remoteness weight is calculated, that has to be done latter).
