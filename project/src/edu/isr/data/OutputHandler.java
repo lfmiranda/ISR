@@ -17,8 +17,9 @@ public class OutputHandler {
     public static void printLoadedParameters(ParametersManager params) {
         System.out.println("Loaded parameters:");
 
-        System.out.println("  Path to original folds: " + params.getOrigFoldsPath());
-        System.out.println("  Input path: " + params.getFoldsPath());
+        System.out.println("  Path to the original folds: " + params.getOrigFoldsPath());
+        System.out.println("  Path to the normalized folds: " + params.getNormFoldsPath());
+        // System.out.println("  Input path: " + params.getFoldsPath());
         System.out.println("  Output path: " + params.getOutPath());
         System.out.println("  Dataset name: " + params.getDatasetName());
         System.out.println("  Weighting scheme: " + params.getWeightingFunction());

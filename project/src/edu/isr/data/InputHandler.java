@@ -12,20 +12,28 @@ public class InputHandler {
     /**
      * Reads a set of input folds.
      * @param params Experiment parameters.
-     * @param readOrigFolds Flag indicating if the data should be read from the original folds or from the folds created
-     *                      during the embedding generation step.
+     * @param foldType Flag indicating which type of fold data should be read (can be "orig" or "norm").
      * @return A set of folds.
      * @throws FileNotFoundException If a fold was not found or could not be read.
      */
-    public static ArrayList<Fold> readTrFolds(ParametersManager params, boolean readOrigFolds)
+    public static ArrayList<Fold> readTrFolds(ParametersManager params, String foldType)
             throws FileNotFoundException {
         ArrayList<Fold> folds = new ArrayList<>();
 
         int foldId = 0;
-        String foldPath;
+        String foldPath = null;
 
-        if (readOrigFolds) foldPath = params.getOrigFoldsPath();
-        else foldPath = params.getFoldsPath();
+        switch (foldType) {
+            case "orig":
+                foldPath = params.getOrigFoldsPath();
+                break;
+            case "norm":
+                foldPath = params.getNormFoldsPath();
+                break;
+            default:
+                // foldPath = params.getFoldsPath();
+                break;
+        }
 
         while (true) { // each iteration corresponds to a fold
             String foldName = params.getDatasetName() + "-" + foldId + ".csv";

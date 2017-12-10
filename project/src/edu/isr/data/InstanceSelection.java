@@ -8,16 +8,18 @@ import java.io.IOException;
 public class InstanceSelection {
     /**
      * Selects a subset of instances according to their relative importance.
-     * @param fold Set of instances to be weighted.
+     * @param origFold Set of instances on which the the selection will be applied after the ranking process.
+     * @param normFold Set of instances to be weighted.
      * @param expId Identifier based on the names of the weighting function, neighborhood size, and the distance metric.
      * @param params Experiment parameters.
      * @throws IOException If the output file was not found or could not be written.
      */
-    public static void selectInstances(Fold fold, String expId, ParametersManager params) throws IOException {
-        determineFinalRanks(fold, params);
+    public static void selectInstances(Fold origFold, Fold normFold, String expId, ParametersManager params)
+            throws IOException {
+        determineFinalRanks(normFold, params);
 
         for (double selectionLevel : params.getSelectionLevels())
-            applySelection(fold, fold, expId, params, selectionLevel);
+            applySelection(origFold, normFold, expId, params, selectionLevel);
     }
 
     /**
@@ -50,16 +52,16 @@ public class InstanceSelection {
 
     /**
      * Selects the instances that will be written in the output file.
-     * @param origFold The fold before the application of the embedding method.
-     * @param fold The fold in which the selecting will be based.
+     * @param origFold The fold before the application of the normalization step.
+     * @param normFold The fold in which the selection will be based.
      * @param expId Identifier based on the names of the weighting function, neighborhood size, and the distance metric.
      * @param params Experiment parameters.
      * @param selectionLevel Current selection level.
      * @throws IOException If the output file was not found or could not be written.
      */
-    private static void applySelection(Fold origFold, Fold fold, String expId, ParametersManager params,
+    private static void applySelection(Fold origFold, Fold normFold, String expId, ParametersManager params,
                                        double selectionLevel) throws IOException {
-        int numInst = fold.getNumInst();
+        int numInst = normFold.getNumInst();
         int numInstRemoved = (int) Math.round(selectionLevel / 100 * numInst);
         int numInstKept = numInst - numInstRemoved;
 
@@ -67,10 +69,10 @@ public class InstanceSelection {
 
         int index = 0;
         for (int i = 0; i < numInst; i++) {
-            Instance currInst = fold.getInst(i);
+            Instance currInst = normFold.getInst(i);
 
             if (currInst.getRank() <= numInstKept) {
-                instKept[index] = currInst;
+                instKept[index] = origFold.getInst(i);
                 index++;
             }
         }
@@ -83,6 +85,6 @@ public class InstanceSelection {
                 " instances (" + index + ") should be the same as the number of instances that should be kept (" +
                 numInstKept + ").";
 
-        OutputHandler.writeInstances(instKept, expId, params, fold.getFoldId(), selectionLevel);
+        OutputHandler.writeInstances(instKept, expId, params, origFold.getFoldId(), selectionLevel);
     }
 }

@@ -5,16 +5,16 @@ original.folds.path = ~/Dropbox/my_files/research/ISR/datasets/original/
 input.path = ~/Dropbox/my_files/research/ISR/datasets/original/
 
 # Path to the output folder.
-output.path = ~/Dropbox/my_files/research/ISR/datasets/7-06.12.2017/
+output.path = ~/Dropbox/my_files/research/ISR/datasets/15-09.12.2017/
 
 # Dataset name.
 dataset.name = vladislavleva-1-train
 
 # Weighting function.
-weighting.function = surrounding-xy
+weighting.function = proximity-xy
 
 # Percentage of instances that should be removed.
-selection.level = 25
+selection.levels = 0, 1, 5, 10, 15, 20, 25
 
 # Distance metric.
 distance.metric = 2

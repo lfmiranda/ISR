@@ -25,7 +25,8 @@ public class ParametersManager {
 
     // parameters
     private String origFoldsPath;
-    private String foldsPath;
+    private String normFoldsPath;
+    // private String foldsPath;
     private String outPath;
     private String datasetName;
     private String weightingFunction;
@@ -107,8 +108,9 @@ public class ParametersManager {
         PARENT_FILE("parent", "Path to the parent parameter file. Parameters in the child file overwrite parameters " +
                 "with the same name in the parent file."),
         ORIGINAL_FOLDS_PATH("original.folds.path", "Path to the folder containing the original folds."),
-        INPUT_PATH("input.path", "Path to the folder containing the input folds. It is the same as the " +
-                "\"original.folds.path\" parameter if no dimensionality reduction method was applied to the datasets."),
+        NORMALIZED_FOLDS_PATH("normalized.folds.path", "Path to the folder containing the normalized folds."),
+        /* INPUT_PATH("input.path", "Path to the folder containing the input folds. It is the same as the " +
+                "\"original.folds.path\" parameter if no dimensionality reduction method was applied to the datasets."),*/
         OUTPUT_PATH("output.path", "Path to the output folder."),
         DATASET_NAME("dataset.name", "Dataset name."),
         WEIGHTING_FUNCTION("weighting.function", "Weighting function."),
@@ -184,7 +186,8 @@ public class ParametersManager {
      */
     private void assignParameters() throws MissingOptionException {
         origFoldsPath = getStringParameter(ParameterList.ORIGINAL_FOLDS_PATH, true);
-        foldsPath = getStringParameter(ParameterList.INPUT_PATH, true);
+        normFoldsPath = getStringParameter(ParameterList.NORMALIZED_FOLDS_PATH, true);
+        // foldsPath = getStringParameter(ParameterList.INPUT_PATH, true);
         outPath = getStringParameter(ParameterList.OUTPUT_PATH, true);
         datasetName = getStringParameter(ParameterList.DATASET_NAME, false);
         weightingFunction = getStringParameter(ParameterList.WEIGHTING_FUNCTION, false);
@@ -336,8 +339,8 @@ public class ParametersManager {
 
     /**
      * After the execution of the weighting step, each instance get a rank. The construction of this rank may be based
-     * on the folds created after a dimensionality reduction step. The selection, however, is made over the original
-     * folds, which the path is stored by the variable {@code origFoldsPath}.
+     * on the folds created after a normalization or dimensionality reduction step. The selection, however, is made over
+     * the original folds, which the path is stored by the variable {@code normFoldsPath} or {@code foldsPath}.
      * @return The path to the folder containing the original folds.
      */
     String getOrigFoldsPath() {
@@ -345,13 +348,22 @@ public class ParametersManager {
     }
 
     /**
+     * Get the path for the normalized folds, which should be used for the weighting and ranking process.
+     * @return The path to the folder containing the normalized folds.
+     */
+    String getNormFoldsPath() {
+        return normFoldsPath;
+    }
+
+    /*
+    /**
      * Returns the path to the folder containing the input folds (possibly created during a dimensionality reduction
      * step) that should be used as input in the experiment. For real experiments, only training folds should be read.
      * @return The path to the input folds.
      */
-    String getFoldsPath() {
+    /* String getFoldsPath() {
         return foldsPath;
-    }
+    } */
 
     /**
      * Returns the path where the output files should be saved.
@@ -383,7 +395,7 @@ public class ParametersManager {
      * selection step should not be performed.
      * @return The array containing all selection levels.
      */
-    public double[] getSelectionLevels() {
+    double[] getSelectionLevels() {
         return selectionLevels;
     }
 

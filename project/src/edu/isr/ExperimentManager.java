@@ -39,14 +39,20 @@ class ExperimentManager {
      * @throws IOException If some error occurs while creating the output files.
      */
     void runExperiment() throws IOException {
-        ArrayList<Fold> trFolds = InputHandler.readTrFolds(params, false);
+        ArrayList<Fold> origTrFolds = InputHandler.readTrFolds(params, "orig");
+        ArrayList<Fold> normTrFolds = InputHandler.readTrFolds(params, "norm");
 
-        assert trFolds.size() > 0 : "input folds not found.";
+        int numOrigTrFolds = origTrFolds.size();
+        int numNormTrFolds = normTrFolds.size();
 
-        for (Fold currTrFold : trFolds) {
-            System.out.println("Working on fold " + currTrFold.getFoldId() + "...");
-            InstanceWeighting.rankInstances(currTrFold, expId, params);
-            InstanceSelection.selectInstances(currTrFold, expId, params);
+        assert numOrigTrFolds > 0 : "original training folds not found.";
+        assert numNormTrFolds > 0 : "normalized training folds not found.";
+        assert numOrigTrFolds == numNormTrFolds : "number of original and normalized training folds should be the same";
+
+        for (int i = 0; i < numOrigTrFolds; i++) {
+            System.out.println("Working on fold " + origTrFolds.get(i).getFoldId() + "...");
+            InstanceWeighting.rankInstances(normTrFolds.get(i), expId, params);
+            InstanceSelection.selectInstances(origTrFolds.get(i), normTrFolds.get(i), expId, params);
         }
     }
 }
